@@ -1,0 +1,4 @@
+/home/hspark/1DevWorks/IDEs/clion-2017.2.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/hspark/CLionProjects/DoubleDispatchTest
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/hspark/CLionProjects/DoubleDispatchTest/cmake-build-debug

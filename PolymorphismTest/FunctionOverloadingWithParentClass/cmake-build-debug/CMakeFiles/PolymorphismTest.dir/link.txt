@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/PolymorphismTest.dir/main.cpp.o CMakeFiles/PolymorphismTest.dir/Person.cpp.o CMakeFiles/PolymorphismTest.dir/Tests.cpp.o  -o PolymorphismTest 

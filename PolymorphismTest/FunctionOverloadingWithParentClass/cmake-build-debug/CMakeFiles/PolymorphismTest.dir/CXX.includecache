@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/hspark/CLionProjects/PolymorphismTest/Person.cpp
+Person.h
+/home/hspark/CLionProjects/PolymorphismTest/Person.h
+
+/home/hspark/CLionProjects/PolymorphismTest/Person.h
+string
+-
+iostream
+-
+
+/home/hspark/CLionProjects/PolymorphismTest/Tests.cpp
+Tests.h
+/home/hspark/CLionProjects/PolymorphismTest/Tests.h
+
+/home/hspark/CLionProjects/PolymorphismTest/Tests.h
+iostream
+-
+Person.h
+/home/hspark/CLionProjects/PolymorphismTest/Person.h
+
+/home/hspark/CLionProjects/PolymorphismTest/main.cpp
+iostream
+-
+vector
+-
+Person.h
+/home/hspark/CLionProjects/PolymorphismTest/Person.h
+Tests.h
+/home/hspark/CLionProjects/PolymorphismTest/Tests.h
+
