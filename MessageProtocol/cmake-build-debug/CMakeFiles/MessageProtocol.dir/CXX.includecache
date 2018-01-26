@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/hspark/CLionProjects/MessageProtocol/Messenger.h
+Pipe.h
+/home/hspark/CLionProjects/MessageProtocol/Pipe.h
+iostream
+-
+
+/home/hspark/CLionProjects/MessageProtocol/Pipe.h
+zconf.h
+-
+
+/home/hspark/CLionProjects/MessageProtocol/main.cpp
+iostream
+-
+Messenger.h
+/home/hspark/CLionProjects/MessageProtocol/Messenger.h
+

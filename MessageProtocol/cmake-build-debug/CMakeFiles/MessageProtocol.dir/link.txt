@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/MessageProtocol.dir/main.cpp.o  -o MessageProtocol 
