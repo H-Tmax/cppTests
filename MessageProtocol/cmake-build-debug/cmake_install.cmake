@@ -1,4 +1,4 @@
-# Install script for directory: /home/hspark/CLionProjects/MessageProtocol
+# Install script for directory: /home/park/Playground/CPP_TEST/cppTests/MessageProtocol
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/hspark/CLionProjects/MessageProtocol/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

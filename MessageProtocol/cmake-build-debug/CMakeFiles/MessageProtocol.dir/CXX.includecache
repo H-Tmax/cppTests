@@ -6,19 +6,25 @@
 
 #IncludeRegexTransform: 
 
-/home/hspark/CLionProjects/MessageProtocol/Messenger.h
+/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/DummyClasses.h
 Pipe.h
-/home/hspark/CLionProjects/MessageProtocol/Pipe.h
+/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Pipe.h
+Sendable.h
+/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Sendable.h
 iostream
 -
 
-/home/hspark/CLionProjects/MessageProtocol/Pipe.h
+/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Pipe.h
 zconf.h
 -
 
-/home/hspark/CLionProjects/MessageProtocol/main.cpp
+/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Sendable.h
 iostream
 -
-Messenger.h
-/home/hspark/CLionProjects/MessageProtocol/Messenger.h
+
+/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/main.cpp
+iostream
+-
+DummyClasses.h
+/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/DummyClasses.h
 

@@ -3,5 +3,5 @@ project(MessageProtocol)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp Messenger.h Pipe.h)
+set(SOURCE_FILES main.cpp Pipe.h DummyClasses.h Sendable.h)
 add_executable(MessageProtocol ${SOURCE_FILES})

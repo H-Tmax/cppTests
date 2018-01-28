@@ -1,2 +1,2 @@
 Options: 
-CMake: 3.8.2@/home/hspark/DevWorks/IDEs/clion-2017.2.3/bin/cmake/bin/cmake
+CMake: 3.8.2@/opt/clion/bin/cmake/bin/cmake
