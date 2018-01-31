@@ -4,15 +4,12 @@
 #endif //MESSAGEPROTOCOL_DUMMYCLASSES_H
 
 #include "Pipe.h"
-#include "Sendable.h"
+#include "TCP.h"
 #include <iostream>
 
-class DummyClassA : public Sendable {
-private:
-
-
+class DummySendable : public Sendable {
 public:
-    DummyClassA() : pipe() {
+    DummySendable() {
         //NOTHING TO SEE HERE
     }
 
@@ -20,10 +17,31 @@ public:
         std::cout << "class A's foo" << std::endl;
     }
 
-//    template<typename Recipient>
-//    void sendsTo(Recipient receiver) {
-//        std::cout << "ooops, overriden!" << std::endl;
-//    }
+    int b;
+    long int c;
+    int d;
+
+private:
+    //DEV REQUIRED
+    int sendable_type(){
+        return DUMMY_SENDABLE;
+    }
+
+    //DEV REQUIRED
+    void *sendable_main(){
+        return run(this);
+    }
+};
+
+class DummyReceivable : public Receivable {
+public:
+    DummyReceivable() : pipe() {
+        //NOTHING TO SEE HERE
+    }
+
+    void foo() {
+        std::cout << "class A's foo" << std::endl;
+    }
 
     Pipe pipe;
 };

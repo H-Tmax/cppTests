@@ -6,25 +6,37 @@
 
 #IncludeRegexTransform: 
 
-/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/DummyClasses.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/DummyClasses.h
 Pipe.h
-/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Pipe.h
-Sendable.h
-/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Sendable.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/Pipe.h
+TCP.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP.h
 iostream
 -
 
-/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Pipe.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/Pipe.h
 zconf.h
 -
 
-/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/Sendable.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP.h
 iostream
 -
+cstring
+-
+unistd.h
+-
+typeindex
+-
+TCP_TYPE_LIST.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP_TYPE_LIST.h
 
-/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/main.cpp
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP_TYPE_LIST.h
+
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/main.cpp
 iostream
+-
+sstream
 -
 DummyClasses.h
-/home/park/Playground/CPP_TEST/cppTests/MessageProtocol/DummyClasses.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/DummyClasses.h
 

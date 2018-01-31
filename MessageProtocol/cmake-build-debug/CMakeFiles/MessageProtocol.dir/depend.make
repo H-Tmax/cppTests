@@ -3,6 +3,7 @@
 
 CMakeFiles/MessageProtocol.dir/main.cpp.o: ../DummyClasses.h
 CMakeFiles/MessageProtocol.dir/main.cpp.o: ../Pipe.h
-CMakeFiles/MessageProtocol.dir/main.cpp.o: ../Sendable.h
+CMakeFiles/MessageProtocol.dir/main.cpp.o: ../TCP.h
+CMakeFiles/MessageProtocol.dir/main.cpp.o: ../TCP_TYPE_LIST.h
 CMakeFiles/MessageProtocol.dir/main.cpp.o: ../main.cpp
 

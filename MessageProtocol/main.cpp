@@ -1,57 +1,40 @@
 #include <iostream>
-
-
-
+#include <sstream>
 #include "DummyClasses.h"
 
 
-//
-//class Serializable {
-//public:
-//    Serializable(){}
-//    virtual ~Serializable(){}
-//
-//    virtual void serialize(std::ostream& stream);
-//    virtual void deserialize(std::istream& stream);
-//};
-
-
 int main() {
-    std::string a = "hello world0101010";
-    std::hash<std::string> hash;
-    std::cout << hash(a) << std::endl;
-    //hash, then modulo
+//    std::string a = "hello world0101010";
+//    std::hash<std::string> hash;
+//    std::cout << hash(a) << std::endl;
+//    //hash, then modulo
 
 
-    DummyClassA dca = DummyClassA();
-    DummyClassA dca2 = DummyClassA();
+    DummySendable *writer = new DummySendable();
+    DummyReceivable *receiver = new DummyReceivable();
 
-    dca.sendsTo(&dca2);
+    writer->tb_sendto(receiver);
+    receiver->tb_recv(receiver);
+    std::cout << ((TCPHeader *) receiver->buffer)->contentsSize << std::endl;
+    std::cout << ((TCPHeader *) receiver->buffer)->contentsSplit << std::endl;
+
+
+
+//    byte * serialized_writer = reinterpret_cast<byte *>(writer);
+//    std::cout << serialized_writer << std::endl;
+//
+//    DummySendable * deserialized_writer = reinterpret_cast<DummySendable *>(serialized_writer);
+//    deserialized_writer->foo();
+
+
+
+
+
+
+
 
     ////////////////////serialization test
-
-
 
     return 0;
 }
 
-//would this be needed?
-////appendsTo(SendableObject)
-//
-//int main()
-//{
-//    using namespace mydata;
-//    MyData data { "this is a name", "this is a type", boost::make_shared<MyInfo>("this is info") };
-//
-//    std::ostringstream oss;
-//    {
-//        boost::archive::text_oarchive oa(oss);
-//        oa << data;
-//    }
-//
-//    std::istringstream iss(oss.str());
-//    {
-//        boost::archive::text_iarchive ia(iss);
-//        ia >> data;
-//    }
-//}
