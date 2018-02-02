@@ -96,10 +96,19 @@
 		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/Pipe.h">
 			<Option target="MessageProtocol"/>
 		</Unit>
-		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP.h">
+		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/Receivable.h">
 			<Option target="MessageProtocol"/>
 		</Unit>
-		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP_TYPE_LIST.h">
+		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/Sendable.h">
+			<Option target="MessageProtocol"/>
+		</Unit>
+		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/Serializable.h">
+			<Option target="MessageProtocol"/>
+		</Unit>
+		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP.h">
+			<Option target="MessageProtocol"/>
+		</Unit>
+		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP_TYPE_LIST.h">
 			<Option target="MessageProtocol"/>
 		</Unit>
 		<Unit filename="/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/main.cpp">

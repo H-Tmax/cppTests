@@ -9,8 +9,8 @@
 /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/DummyClasses.h
 Pipe.h
 /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/Pipe.h
-TCP.h
-/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP.h
+TCP/TCP.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP.h
 iostream
 -
 
@@ -18,7 +18,15 @@ iostream
 zconf.h
 -
 
-/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/Serializable.h
+boost/archive/binary_oarchive.hpp
+-
+boost/archive/binary_iarchive.hpp
+-
+boost/serialization/vector.hpp
+-
+
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP.h
 iostream
 -
 cstring
@@ -28,15 +36,11 @@ unistd.h
 typeindex
 -
 TCP_TYPE_LIST.h
-/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP_TYPE_LIST.h
-boost/archive/binary_oarchive.hpp
--
-boost/archive/binary_iarchive.hpp
--
-boost/serialization/vector.hpp
--
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP_TYPE_LIST.h
+Serializable.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/Serializable.h
 
-/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP_TYPE_LIST.h
+/home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP_TYPE_LIST.h
 
 /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/main.cpp
 iostream

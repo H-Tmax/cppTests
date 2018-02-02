@@ -36,7 +36,7 @@
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="306">
-              <caret line="17" column="22" lean-forward="true" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="30" />
+              <caret line="17" column="22" lean-forward="false" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="30" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -44,39 +44,71 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DummyClasses.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="DummyClasses.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DummyClasses.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="22" column="4" lean-forward="false" selection-start-line="22" selection-start-column="4" selection-end-line="28" selection-end-column="5" />
+            <state relative-caret-position="0">
+              <caret line="15" column="50" lean-forward="false" selection-start-line="15" selection-start-column="50" selection-end-line="15" selection-end-column="50" />
               <folding>
                 <element signature="e#80#97#0" expanded="true" />
-                <element signature="e#409#424#0" expanded="true" />
+                <element signature="e#392#407#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="TCP.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TCP.h">
+        <entry file="file://$PROJECT_DIR$/TCP/TCP.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2726">
-              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+            <state relative-caret-position="504">
+              <caret line="37" column="42" lean-forward="false" selection-start-line="37" selection-start-column="42" selection-end-line="37" selection-end-column="42" />
               <folding>
                 <element signature="e#109#128#0" expanded="true" />
-                <element signature="e#1290#1310#0" expanded="true" />
-                <element signature="e#2804#2819#0" expanded="true" />
-                <element signature="e#4302#4319#0" expanded="true" />
+                <element signature="e#1306#1326#0" expanded="true" />
+                <element signature="e#2560#2575#0" expanded="true" />
+                <element signature="e#4058#4075#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Sendable.h" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/TCP/Sendable.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="72">
+              <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Receivable.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TCP/Receivable.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Serializable.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TCP/Serializable.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="126">
+              <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+              <folding>
+                <element signature="e#80#124#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="TCP_TYPE_LIST.h" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TCP_TYPE_LIST.h">
+        <entry file="file://$PROJECT_DIR$/TCP/TCP_TYPE_LIST.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="108">
-              <caret line="6" column="19" lean-forward="true" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="19" />
+              <caret line="6" column="19" lean-forward="false" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -86,7 +118,7 @@
         <entry file="file://$PROJECT_DIR$/Pipe.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="468">
-              <caret line="26" column="2" lean-forward="true" selection-start-line="26" selection-start-column="2" selection-end-line="26" selection-end-column="2" />
+              <caret line="26" column="2" lean-forward="false" selection-start-line="26" selection-start-column="2" selection-end-line="26" selection-end-column="2" />
               <folding />
             </state>
           </provider>
@@ -108,7 +140,6 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Messenger.h" />
-        <option value="$PROJECT_DIR$/Sendable.h" />
         <option value="$PROJECT_DIR$/Transmittable.h" />
         <option value="$PROJECT_DIR$/TiberoTCP.h" />
         <option value="$PROJECT_DIR$/TiberoCommunicationProtocol.h" />
@@ -118,7 +149,10 @@
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/DummyClasses.h" />
+        <option value="$PROJECT_DIR$/Serializable.h" />
         <option value="$PROJECT_DIR$/TCP.h" />
+        <option value="$PROJECT_DIR$/Receivable.h" />
+        <option value="$PROJECT_DIR$/Sendable.h" />
       </list>
     </option>
   </component>
@@ -130,10 +164,10 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="53" />
-    <option name="y" value="-4" />
-    <option name="width" value="1147" />
-    <option name="height" value="1924" />
+    <option name="x" value="1200" />
+    <option name="y" value="656" />
+    <option name="width" value="1680" />
+    <option name="height" value="1054" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -157,6 +191,11 @@
               <item name="MessageProtocol" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="MessageProtocol" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="MessageProtocol" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="MessageProtocol" type="462c0819:PsiDirectoryNode" />
+              <item name="TCP" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -165,8 +204,13 @@
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/CLionProjects/untitled" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/TCP" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -208,25 +252,25 @@
       <workItem from="1517196968562" duration="1095000" />
       <workItem from="1517202654430" duration="8342000" />
       <workItem from="1517267921261" duration="15184000" />
-      <workItem from="1517377275026" duration="28363000" />
+      <workItem from="1517377275026" duration="31397000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="65206000" />
+    <option name="totallyTimeSpent" value="68240000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="53" y="-4" width="1147" height="1924" extended-state="6" />
+    <frame x="1200" y="656" width="1680" height="1054" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.07512521" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2707659" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32961932" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.12520868" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15803815" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.10648715" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3286908" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2497332" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -276,12 +320,12 @@
           <caret line="31" column="5" lean-forward="false" selection-start-line="31" selection-start-column="5" selection-end-line="31" selection-end-column="5" />
           <folding>
             <element signature="e#80#97#0" expanded="true" />
-            <element signature="e#409#424#0" expanded="true" />
+            <element signature="e#392#407#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TCP_TYPE_LIST.h">
+    <entry file="file://$PROJECT_DIR$/TCP/TCP_TYPE_LIST.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
           <caret line="9" column="19" lean-forward="false" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
@@ -297,15 +341,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TCP.h">
+    <entry file="file://$PROJECT_DIR$/TCP/TCP.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="558">
           <caret line="31" column="2" lean-forward="true" selection-start-line="31" selection-start-column="2" selection-end-line="31" selection-end-column="2" />
           <folding>
             <element signature="e#109#128#0" expanded="true" />
-            <element signature="e#1290#1310#0" expanded="true" />
-            <element signature="e#2804#2819#0" expanded="true" />
-            <element signature="e#4302#4319#0" expanded="true" />
+            <element signature="e#1306#1326#0" expanded="true" />
+            <element signature="e#2560#2575#0" expanded="true" />
+            <element signature="e#4058#4075#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -334,7 +378,7 @@
           <caret line="22" column="7" lean-forward="false" selection-start-line="22" selection-start-column="7" selection-end-line="22" selection-end-column="7" />
           <folding>
             <element signature="e#80#97#0" expanded="true" />
-            <element signature="e#409#424#0" expanded="true" />
+            <element signature="e#392#407#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -372,12 +416,12 @@
           <caret line="25" column="7" lean-forward="false" selection-start-line="22" selection-start-column="6" selection-end-line="25" selection-end-column="7" />
           <folding>
             <element signature="e#80#97#0" expanded="true" />
-            <element signature="e#409#424#0" expanded="true" />
+            <element signature="e#392#407#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Sendable.h" />
+    <entry file="file://$PROJECT_DIR$/TCP/Sendable.h" />
     <entry file="file://$PROJECT_DIR$/Pipe.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="486">
@@ -410,7 +454,7 @@
           <caret line="25" column="7" lean-forward="false" selection-start-line="22" selection-start-column="6" selection-end-line="25" selection-end-column="7" />
           <folding>
             <element signature="e#80#97#0" expanded="true" />
-            <element signature="e#409#424#0" expanded="true" />
+            <element signature="e#392#407#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -423,7 +467,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Sendable.h" />
+    <entry file="file://$PROJECT_DIR$/TCP/Sendable.h" />
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -448,7 +492,7 @@
           <caret line="25" column="7" lean-forward="false" selection-start-line="22" selection-start-column="6" selection-end-line="25" selection-end-column="7" />
           <folding>
             <element signature="e#80#97#0" expanded="true" />
-            <element signature="e#409#424#0" expanded="true" />
+            <element signature="e#392#407#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -461,7 +505,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Sendable.h" />
+    <entry file="file://$PROJECT_DIR$/TCP/Sendable.h" />
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -499,17 +543,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Messenger.h" />
     <entry file="file://$PROJECT_DIR$/Transmittable.h" />
-    <entry file="file://$PROJECT_DIR$/Sendable.h" />
     <entry file="file://$PROJECT_DIR$/TiberoTCP.h" />
     <entry file="file://$PROJECT_DIR$/TiberoCommunicationProtocol.h" />
-    <entry file="file://$PROJECT_DIR$/Serializable.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
@@ -526,31 +561,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TCP.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2726">
-          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-          <folding>
-            <element signature="e#109#128#0" expanded="true" />
-            <element signature="e#1290#1310#0" expanded="true" />
-            <element signature="e#2804#2819#0" expanded="true" />
-            <element signature="e#4302#4319#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Pipe.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="26" column="2" lean-forward="true" selection-start-line="26" selection-start-column="2" selection-end-line="26" selection-end-column="2" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TCP_TYPE_LIST.h">
+    <entry file="file://$PROJECT_DIR$/TCP/TCP_TYPE_LIST.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
-          <caret line="6" column="19" lean-forward="true" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="19" />
+          <caret line="6" column="19" lean-forward="false" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="19" />
           <folding />
         </state>
       </provider>
@@ -558,21 +572,68 @@
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
-          <caret line="17" column="22" lean-forward="true" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="30" />
+          <caret line="17" column="22" lean-forward="false" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="30" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Pipe.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="468">
+          <caret line="26" column="2" lean-forward="false" selection-start-line="26" selection-start-column="2" selection-end-line="26" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/DummyClasses.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="22" column="4" lean-forward="false" selection-start-line="22" selection-start-column="4" selection-end-line="28" selection-end-column="5" />
+        <state relative-caret-position="0">
+          <caret line="15" column="50" lean-forward="false" selection-start-line="15" selection-start-column="50" selection-end-line="15" selection-end-column="50" />
           <folding>
             <element signature="e#80#97#0" expanded="true" />
-            <element signature="e#409#424#0" expanded="true" />
+            <element signature="e#392#407#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TCP/Serializable.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding>
+            <element signature="e#80#124#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TCP/TCP.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="504">
+          <caret line="37" column="42" lean-forward="false" selection-start-line="37" selection-start-column="42" selection-end-line="37" selection-end-column="42" />
+          <folding>
+            <element signature="e#109#128#0" expanded="true" />
+            <element signature="e#1306#1326#0" expanded="true" />
+            <element signature="e#2560#2575#0" expanded="true" />
+            <element signature="e#4058#4075#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TCP/Receivable.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TCP/Sendable.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

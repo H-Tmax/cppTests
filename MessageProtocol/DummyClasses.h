@@ -3,10 +3,10 @@
 
 
 #include "Pipe.h"
-#include "TCP.h"
+#include "TCP/TCP.h"
 #include <iostream>
 
-class DummySendable : public Sendable, public Serializable {
+class DummySendable : public Sendable {
 public:
     DummySendable() {
         //NOTHING TO SEE HERE

@@ -4,8 +4,9 @@
 CMakeFiles/MessageProtocol.dir/main.cpp.o
  /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/DummyClasses.h
  /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/Pipe.h
- /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP.h
- /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP_TYPE_LIST.h
+ /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/Serializable.h
+ /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP.h
+ /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/TCP/TCP_TYPE_LIST.h
  /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/main.cpp
  /home/hspark/DevWorks/boost_1_61_0/boost/align/align.hpp
  /home/hspark/DevWorks/boost_1_61_0/boost/align/detail/align.hpp

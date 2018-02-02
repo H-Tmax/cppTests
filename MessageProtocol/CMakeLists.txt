@@ -9,7 +9,7 @@ link_directories(/home/hspark/DevWorks/boost_1_61_0/stage/lib)
 
 include_directories(${Boost_INCLUDE_DIR})
 
-set(SOURCE_FILES main.cpp Pipe.h DummyClasses.h TCP_TYPE_LIST.h TCP.h)
+set(SOURCE_FILES main.cpp Pipe.h DummyClasses.h TCP/TCP_TYPE_LIST.h TCP/TCP.h TCP/Serializable.h TCP/Sendable.h TCP/Receivable.h)
 
 add_executable(MessageProtocol ${SOURCE_FILES})
 

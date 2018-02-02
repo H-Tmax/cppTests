@@ -3,8 +3,9 @@
 
 CMakeFiles/MessageProtocol.dir/main.cpp.o: ../DummyClasses.h
 CMakeFiles/MessageProtocol.dir/main.cpp.o: ../Pipe.h
-CMakeFiles/MessageProtocol.dir/main.cpp.o: ../TCP.h
-CMakeFiles/MessageProtocol.dir/main.cpp.o: ../TCP_TYPE_LIST.h
+CMakeFiles/MessageProtocol.dir/main.cpp.o: ../TCP/Serializable.h
+CMakeFiles/MessageProtocol.dir/main.cpp.o: ../TCP/TCP.h
+CMakeFiles/MessageProtocol.dir/main.cpp.o: ../TCP/TCP_TYPE_LIST.h
 CMakeFiles/MessageProtocol.dir/main.cpp.o: ../main.cpp
 CMakeFiles/MessageProtocol.dir/main.cpp.o: /home/hspark/DevWorks/boost_1_61_0/boost/align/align.hpp
 CMakeFiles/MessageProtocol.dir/main.cpp.o: /home/hspark/DevWorks/boost_1_61_0/boost/align/detail/align.hpp

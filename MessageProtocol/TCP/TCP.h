@@ -10,10 +10,8 @@
 #include <unistd.h>
 #include <typeindex>
 #include "TCP_TYPE_LIST.h"
+#include "Serializable.h"
 
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
 
 /**
  * Target & payload type agnostic messaging
@@ -21,16 +19,23 @@
  */
 
 
+
 //same with typedef unsigned char byte;
 using byte = unsigned char;
 
-struct TCPHeader {
+class TCPHeader : public Serializable {
     //To read and cast
+public:
+    int contentsType;
     int contentsSize;
     bool contentsSplit;
+
+    //serializeheader!
+
+
 };
 
-struct PartialHeader {
+struct PartialHeader : public Serializable {
     //Using hashed value of the message's body + random salt * 2
     long int ID;
     int Sequence;
@@ -43,7 +48,7 @@ struct PartialHeader {
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-class Sendable {
+class Sendable : public Serializable {
 public:
     TCPHeader header;
     byte *payload;
@@ -54,14 +59,6 @@ public:
         receiverFD = receiver->pipe.getWriteFd();
 
         this->sendable_main();
-
-        //
-        //TESTING CODE
-        //
-
-        //use this as the unique id >>>>> std::cout << this << std::endl;
-
-        //write(receiver->pipe.getWriteFd(), &header, sizeof(TCPHeader));
     }
 
     //for all Sendable object
@@ -81,8 +78,6 @@ public:
         this->header.contentsSplit = false;
     }
 
-
-
     void setPayloadSize(int size) {
         this->header.contentsSize = size;
     }
@@ -90,24 +85,16 @@ public:
     void transmitSendable(){
         int headerSize = sizeof(TCPHeader);
 
-        byte *concatted = new unsigned char[headerSize + this->header.contentsSize];
+        byte *concatenated = new unsigned char[headerSize + this->header.contentsSize];
 
-        memcpy(concatted, &this->header, headerSize);
+        memcpy(concatenated, &this->header, headerSize);
 
-        memcpy(concatted + headerSize, this->payload, this->header.contentsSize);
+        memcpy(concatenated + headerSize, this->payload, this->header.contentsSize);
 
-        write(this->receiverFD, concatted, headerSize + this->header.contentsSize);
+        write(this->receiverFD, concatenated, headerSize + this->header.contentsSize);
 
-        delete[] concatted;
+        delete[] concatenated;
     }
-
-
-    //Has to call serialize function of
-    void serializeBody(){
-
-    }
-
-
 
     /**
      * pure virtual method that NEEDS TO BE OVERRIDEN
@@ -216,27 +203,7 @@ public:
 /**
  *
  */
-class Serializable {
-public:
 
-    friend class boost::serialization::access;
-
-
-    std::stringbuf buf;
-    std::ostream os;
-    boost::archive::binary_oarchive oar;
-
-    std::istream is;
-    boost::archive::binary_iarchive iar;
-    //virtual void serialize() = 0;
-
-    Serializable() : buf(), os(&buf), oar(os, boost::archive::no_header),  is(&buf), iar(is, boost::archive::no_header) {
-        //NOTHING TO SEE HERE
-    }
-
-//    virtual void serialize(boost::archive::binary_oarchive & oar) = 0;
-
-};
 
 
 
