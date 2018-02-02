@@ -44,6 +44,7 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/home/hspark/DevWorks/boost_1_61_0"/>
 					<Add directory="/usr/include/c++/4.8"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/4.8"/>
 					<Add directory="/usr/include/c++/4.8/backward"/>
@@ -69,6 +70,7 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="/home/hspark/DevWorks/boost_1_61_0"/>
 					<Add directory="/usr/include/c++/4.8"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/4.8"/>
 					<Add directory="/usr/include/c++/4.8/backward"/>

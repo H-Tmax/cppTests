@@ -5,15 +5,15 @@
 #ifndef MESSAGEPROTOCOL_TCP_H
 #define MESSAGEPROTOCOL_TCP_H
 
-#endif //MESSAGEPROTOCOL_TCP_H
-
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
 #include <typeindex>
 #include "TCP_TYPE_LIST.h"
 
-
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
 
 /**
  * Target & payload type agnostic messaging
@@ -31,14 +31,19 @@ struct TCPHeader {
 };
 
 struct PartialHeader {
-    //Using hashed value of the message's body
+    //Using hashed value of the message's body + random salt * 2
     long int ID;
     int Sequence;
     int Total;
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-class Sendable{
+class Sendable {
 public:
     TCPHeader header;
     byte *payload;
@@ -59,19 +64,50 @@ public:
         //write(receiver->pipe.getWriteFd(), &header, sizeof(TCPHeader));
     }
 
+    //for all Sendable object
+//    void serializeHeader(){
+//        serialize()
+//    }
+//
+//    template<class Archive>
+//    void serialize(Archive & ar, const unsigned int version)
+//    {
+//        ar & b;
+//        ar & c;
+//    }
+
     void initializeHeader() {
         this->header.contentsSize = 0;
         this->header.contentsSplit = false;
     }
+
+
 
     void setPayloadSize(int size) {
         this->header.contentsSize = size;
     }
 
     void transmitSendable(){
-        write(this->receiverFD, &this->header, sizeof(TCPHeader));
-        write(this->receiverFD, this->payload, this->header.contentsSize);
+        int headerSize = sizeof(TCPHeader);
+
+        byte *concatted = new unsigned char[headerSize + this->header.contentsSize];
+
+        memcpy(concatted, &this->header, headerSize);
+
+        memcpy(concatted + headerSize, this->payload, this->header.contentsSize);
+
+        write(this->receiverFD, concatted, headerSize + this->header.contentsSize);
+
+        delete[] concatted;
     }
+
+
+    //Has to call serialize function of
+    void serializeBody(){
+
+    }
+
+
 
     /**
      * pure virtual method that NEEDS TO BE OVERRIDEN
@@ -80,7 +116,58 @@ public:
     virtual int sendable_type() = 0;
 
     virtual void *sendable_main() = 0;
+
 };
+
+template<class Derived>
+void *run(Derived *derivedSendable) {
+    //Initialize header in case it still has old header values
+    derivedSendable->initializeHeader();
+
+    //serializing the derived object
+    //byte *serialized = reinterpret_cast<byte *>(derivedSendable->payload);
+
+    derivedSendable->oar << *derivedSendable;
+
+    int tempSize = derivedSendable->buf.str().length();
+
+    Derived ddd;
+
+
+    derivedSendable->iar >> ddd;
+
+    std::cout << ddd.b << std::endl;
+    std::cout << ddd.c << std::endl;
+
+
+
+    derivedSendable->payload = (byte *)derivedSendable->buf.str().c_str();
+
+    derivedSendable->setPayloadSize(tempSize);
+
+
+
+    //Pipe guarantees atomicity only up to 512 bytes.
+    if (tempSize > 512) {
+        //makeSendables(serialized)
+    } else {
+        //derivedSendable->payload = derivedSendable->makeSendable(serialized);
+        derivedSendable->transmitSendable();
+    }
+
+
+
+    //std::cout << serialized << std::endl;
+    //Derived * deserialized = reinterpret_cast<Derived *>(serialized);
+    //deserialized->foo();
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 class Receivable{
 public:
@@ -91,7 +178,17 @@ public:
 
         //read(receiver->pipe.getReadFd(), &buffer, sizeof(TCPHeader));
 
-        read(receiver->pipe.getReadFd(), &buffer, sizeof(TCPHeader));
+        read(receiver->pipe.getReadFd(), buffer, sizeof(TCPHeader));
+
+        int sssssize = ((TCPHeader *) receiver->buffer)->contentsSize;
+
+        std::cout << sssssize << std::endl;
+
+        std::cout << ((TCPHeader *) receiver->buffer)->contentsSplit << std::endl;
+
+        read(receiver->pipe.getReadFd(), buffer, sssssize);
+
+
 
 //        std::cout << ((TCPHeader *) buffer)->contentsSize << std::endl;
 //        std::cout << ((TCPHeader *) buffer)->contentsSplit << std::endl;
@@ -111,42 +208,39 @@ public:
     //private helper methods
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+/**
+ *
+ */
+class Serializable {
+public:
 
-template<class Derived>
-void *run(Derived *derivedSendable) {
-    //Initialize header in case it still has old header values
-    derivedSendable->initializeHeader();
+    friend class boost::serialization::access;
 
-    //serializing the derived object
-    byte *serialized = reinterpret_cast<byte *>(derivedSendable->payload);
 
-    int tempSize = sizeof(*derivedSendable);
+    std::stringbuf buf;
+    std::ostream os;
+    boost::archive::binary_oarchive oar;
 
-    if (!tempSize){
+    std::istream is;
+    boost::archive::binary_iarchive iar;
+    //virtual void serialize() = 0;
 
+    Serializable() : buf(), os(&buf), oar(os, boost::archive::no_header),  is(&buf), iar(is, boost::archive::no_header) {
+        //NOTHING TO SEE HERE
     }
 
+//    virtual void serialize(boost::archive::binary_oarchive & oar) = 0;
 
-
-    derivedSendable->header.contentsSize = tempSize;
-
-    derivedSendable->payload = serialized;
-
-    derivedSendable->setPayloadSize(tempSize);
-
-
-    //Pipe guarantees atomicity only up to 512 bytes.
-    if (tempSize > 512) {
-        //makeSendables(serialized)
-    } else {
-        //derivedSendable->payload = derivedSendable->makeSendable(serialized);
-        derivedSendable->transmitSendable();
-    }
+};
 
 
 
-    //std::cout << serialized << std::endl;
-    //Derived * deserialized = reinterpret_cast<Derived *>(serialized);
-    //deserialized->foo();
 
-}
+
+#endif //MESSAGEPROTOCOL_TCP_H
+

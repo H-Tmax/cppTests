@@ -3,7 +3,6 @@
 #ifndef MESSAGEPROTOCOL_PIPE_H
 #define MESSAGEPROTOCOL_PIPE_H
 
-#endif //MESSAGEPROTOCOL_PIPE_H
 
 class Pipe {
 public:
@@ -26,3 +25,7 @@ private:
     int readFD;
     int writeFD;
 };
+
+
+#endif //MESSAGEPROTOCOL_PIPE_H
+

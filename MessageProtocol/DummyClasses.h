@@ -1,13 +1,12 @@
 #ifndef MESSAGEPROTOCOL_DUMMYCLASSES_H
 #define MESSAGEPROTOCOL_DUMMYCLASSES_H
 
-#endif //MESSAGEPROTOCOL_DUMMYCLASSES_H
 
 #include "Pipe.h"
 #include "TCP.h"
 #include <iostream>
 
-class DummySendable : public Sendable {
+class DummySendable : public Sendable, public Serializable {
 public:
     DummySendable() {
         //NOTHING TO SEE HERE
@@ -21,16 +20,29 @@ public:
     long int c;
     int d;
 
+    //DEV REQUIRED
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & b;
+        ar & c;
+    }
+
 private:
     //DEV REQUIRED
-    int sendable_type(){
-        return DUMMY_SENDABLE;
+    int sendable_type() {
+        return 0;
     }
 
     //DEV REQUIRED
-    void *sendable_main(){
+    void *sendable_main() {
         return run(this);
     }
+
+
+
+
+
 };
 
 class DummyReceivable : public Receivable {
@@ -45,3 +57,6 @@ public:
 
     Pipe pipe;
 };
+
+
+#endif //MESSAGEPROTOCOL_DUMMYCLASSES_H
