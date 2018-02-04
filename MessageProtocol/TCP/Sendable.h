@@ -16,28 +16,13 @@ public:
         this->sendable_main();
     }
 
-    //for all Sendable object
-//    void serializeHeader(){
-//        serialize()
-//    }
-//
-//    template<class Archive>
-//    void serialize(Archive & ar, const unsigned int version)
-//    {
-//        ar & b;
-//        ar & c;
-//    }
-
     void initializeHeader() {
+        this->header.contentsType = 0;
         this->header.contentsSize = 0;
         this->header.contentsSplit = false;
     }
 
-    void setPayloadSize(int size) {
-        this->header.contentsSize = size;
-    }
-
-    void transmitSendable(){
+    byte *prepareTransmission() {
         int headerSize = sizeof(TCPHeader);
 
         byte *concatenated = new unsigned char[headerSize + this->header.contentsSize];
@@ -46,9 +31,22 @@ public:
 
         memcpy(concatenated + headerSize, this->payload, this->header.contentsSize);
 
-        write(this->receiverFD, concatenated, headerSize + this->header.contentsSize);
+        return concatenated;
+    }
 
-        delete[] concatenated;
+    void transmitSendable(byte *payload) {
+        write(this->receiverFD, payload, sizeof(TCPHeader) + this->header.contentsSize);
+        delete[] payload;
+    }
+
+    void setHeader(int sendable_type, int contentsSize, bool isSplit) {
+        this->header.contentsType = sendable_type;
+        this->header.contentsSize = contentsSize;
+        this->header.contentsSplit = isSplit;
+    }
+
+    void setPayload(byte *payload) {
+        this->payload = payload;
     }
 
     /**
@@ -66,42 +64,28 @@ void *run(Derived *derivedSendable) {
     //Initialize header in case it still has old header values
     derivedSendable->initializeHeader();
 
-    //serializing the derived object
-    //byte *serialized = reinterpret_cast<byte *>(derivedSendable->payload);
-
+    //Serialize the contents (derived Sendable)
     derivedSendable->oar << *derivedSendable;
 
-    int tempSize = derivedSendable->buf.str().length();
-
-    Derived ddd;
-
-
-    derivedSendable->iar >> ddd;
-
-    std::cout << ddd.b << std::endl;
-    std::cout << ddd.c << std::endl;
-
-
-
-    derivedSendable->payload = (byte *)derivedSendable->buf.str().c_str();
-
-    derivedSendable->setPayloadSize(tempSize);
-
-
+    //Get the size of the contents
+    int totalSize = derivedSendable->buf.str().length();
 
     //Pipe guarantees atomicity only up to 512 bytes.
-    if (tempSize > 512) {
+    if (totalSize > 512) {
+//        std::string a = "hello world0101010";
+//        std::hash<std::string> hash;
+//        std::cout << hash(a) << std::endl;
+
         //makeSendables(serialized)
     } else {
-        //derivedSendable->payload = derivedSendable->makeSendable(serialized);
-        derivedSendable->transmitSendable();
+        //Set the Sendable header properly
+        derivedSendable->setHeader(derivedSendable->sendable_type(), totalSize, false);
+
+        //Set the payload, which is the serialized object
+        derivedSendable->setPayload((byte *) derivedSendable->buf.str().c_str());
+
+        derivedSendable->transmitSendable(derivedSendable->prepareTransmission());
     }
-
-
-
-    //std::cout << serialized << std::endl;
-    //Derived * deserialized = reinterpret_cast<Derived *>(serialized);
-    //deserialized->foo();
 
 }
 

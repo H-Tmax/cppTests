@@ -2,46 +2,54 @@
 #define MESSAGEPROTOCOL_RECEIVABLE_H
 
 #include "TCP.h"
+#include "Pipe.h"
 
-class Receivable{
+class Receivable {
 public:
-    template<typename Reader>
-    void tb_recv(Reader receiver) {
+
+    Receivable() : pipe() {
+        //NOTHING TO SEE HERE
+    }
+
+
+    void tb_recv() {
         //Initialize buffer in case it still has old buffer values
-        this->initializeBuffer();
+        this->initializeBuffers();
 
-        //read(receiver->pipe.getReadFd(), &buffer, sizeof(TCPHeader));
+        //Read header first
+        read(this->pipe.getReadFd(), headerBuffer, sizeof(TCPHeader));
 
-        read(receiver->pipe.getReadFd(), buffer, sizeof(TCPHeader));
+        //Get the payload size from the header
+        int payloadSize = ((TCPHeader *) this->headerBuffer)->contentsSize;
 
-        int sssssize = ((TCPHeader *) receiver->buffer)->contentsSize;
+        //New buffer for the payload
+        payloadBuffer = new unsigned char[payloadSize];
 
-        std::cout << sssssize << std::endl;
+        //Read the payload
+        read(this->pipe.getReadFd(), payloadBuffer, payloadSize);
 
-        std::cout << ((TCPHeader *) receiver->buffer)->contentsSplit << std::endl;
+        //deserialize the contents
+        std::stringbuf buf;
+        buf.sputn((char *)this->payloadBuffer, payloadSize);
+        std::istream is(&buf);
+        boost::archive::binary_iarchive iar(is, boost::archive::no_header);
 
-        read(receiver->pipe.getReadFd(), buffer, sssssize);
+        //iar >> s;
 
 
-
-//        std::cout << ((TCPHeader *) buffer)->contentsSize << std::endl;
-//        std::cout << ((TCPHeader *) buffer)->contentsSplit << std::endl;
-//        std::cout << ((TCPHeader *) buffer)->contentsType << std::endl;
-
-        //receiver->partialMessageQueue.enque();
-        //read SendableHeader only when contentsSplit != true
 
     }
 
-
-    byte buffer[512];
-
-    void initializeBuffer() {
-        memset(&buffer, 0, sizeof(buffer));
+    void initializeBuffers() {
+        memset(&headerBuffer, 0, sizeof(TCPHeader));
+        delete this->payloadBuffer;
     }
-    //private helper methods
+
+    Pipe pipe;
+    byte headerBuffer[sizeof(TCPHeader)];
+    byte* payloadBuffer;
+
 };
-
 
 
 #endif //MESSAGEPROTOCOL_RECEIVABLE_H

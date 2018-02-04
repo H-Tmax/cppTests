@@ -2,7 +2,7 @@
 #define MESSAGEPROTOCOL_DUMMYCLASSES_H
 
 
-#include "Pipe.h"
+
 #include "TCP/TCP.h"
 #include "TCP/Sendable.h"
 #include "TCP/Receivable.h"
@@ -30,10 +30,10 @@ public:
         ar & c;
     }
 
-private:
+
     //DEV REQUIRED
     int sendable_type() {
-        return 0;
+        return DUMMY_SENDABLE;
     }
 
     //DEV REQUIRED
@@ -49,7 +49,7 @@ private:
 
 class DummyReceivable : public Receivable {
 public:
-    DummyReceivable() : pipe() {
+    DummyReceivable() {
         //NOTHING TO SEE HERE
     }
 
@@ -57,7 +57,6 @@ public:
         std::cout << "class A's foo" << std::endl;
     }
 
-    Pipe pipe;
 };
 
 

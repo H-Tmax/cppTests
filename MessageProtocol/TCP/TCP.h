@@ -22,16 +22,10 @@
 //same with typedef unsigned char byte;
 using byte = unsigned char;
 
-class TCPHeader : public Serializable {
-    //To read and cast
-public:
+struct TCPHeader {
     int contentsType;
     int contentsSize;
     bool contentsSplit;
-
-    //serializeheader!
-
-
 };
 
 struct PartialHeader : public Serializable {
