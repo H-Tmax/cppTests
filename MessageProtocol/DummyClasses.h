@@ -4,6 +4,8 @@
 
 #include "Pipe.h"
 #include "TCP/TCP.h"
+#include "TCP/Sendable.h"
+#include "TCP/Receivable.h"
 #include <iostream>
 
 class DummySendable : public Sendable {
