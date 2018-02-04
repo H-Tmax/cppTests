@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/MessageProtocol.dir/main.cpp.o  -o MessageProtocol  -L/home/hspark/DevWorks/boost_1_61_0/stage/lib -Wl,-rpath,/home/hspark/DevWorks/boost_1_61_0/stage/lib -lboost_serialization 

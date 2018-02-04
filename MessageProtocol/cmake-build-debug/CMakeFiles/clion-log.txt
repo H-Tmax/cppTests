@@ -1,4 +1,0 @@
-/home/hspark/DevWorks/IDEs/clion-2017.2.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol
--- Configuring done
--- Generating done
--- Build files have been written to: /home/hspark/DevWorks/H-Tmax/cppTests/MessageProtocol/cmake-build-debug

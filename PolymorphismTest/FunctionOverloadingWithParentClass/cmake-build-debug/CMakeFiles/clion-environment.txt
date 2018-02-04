@@ -1,2 +1,0 @@
-Options: 
-CMake: 3.8.2@/home/hspark/1DevWorks/IDEs/clion-2017.2.3/bin/cmake/bin/cmake
