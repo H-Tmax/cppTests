@@ -35,9 +35,6 @@ public:
         boost::archive::binary_iarchive iar(is, boost::archive::no_header);
 
         //iar >> s;
-
-
-
     }
 
     void initializeBuffers() {

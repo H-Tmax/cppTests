@@ -7,13 +7,14 @@ class Sendable : public Serializable {
 public:
     TCPHeader header;
     byte *payload;
-    int receiverFD;
 
     template<typename Recipient>
     void tb_sendto(Recipient receiver) {
-        receiverFD = receiver->pipe.getWriteFd();
+        int receiverFD = receiver->pipe.getWriteFd();
 
         this->sendable_main();
+
+        this->transmitSendable(receiverFD, this->makeCompleteSendable());
     }
 
     void initializeHeader() {
@@ -22,7 +23,7 @@ public:
         this->header.contentsSplit = false;
     }
 
-    byte *prepareTransmission() {
+    byte *makeCompleteSendable() {
         int headerSize = sizeof(TCPHeader);
 
         byte *concatenated = new unsigned char[headerSize + this->header.contentsSize];
@@ -34,8 +35,8 @@ public:
         return concatenated;
     }
 
-    void transmitSendable(byte *payload) {
-        write(this->receiverFD, payload, sizeof(TCPHeader) + this->header.contentsSize);
+    void transmitSendable(int targetFD, byte *payload) {
+        write(targetFD, payload, sizeof(TCPHeader) + this->header.contentsSize);
         delete[] payload;
     }
 
@@ -56,7 +57,6 @@ public:
     virtual int sendable_type() = 0;
 
     virtual void *sendable_main() = 0;
-
 };
 
 template<class Derived>
@@ -83,11 +83,7 @@ void *run(Derived *derivedSendable) {
 
         //Set the payload, which is the serialized object
         derivedSendable->setPayload((byte *) derivedSendable->buf.str().c_str());
-
-        derivedSendable->transmitSendable(derivedSendable->prepareTransmission());
     }
-
 }
-
 
 #endif //MESSAGEPROTOCOL_SENDABLE_H

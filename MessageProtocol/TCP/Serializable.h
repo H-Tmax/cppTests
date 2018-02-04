@@ -17,14 +17,6 @@ public:
         //NOTHING TO SEE HERE
     }
 
-//    std::istream is;
-//    boost::archive::binary_iarchive iar;
-//
-//
-//    Serializable() : buf(), os(&buf), oar(os, boost::archive::no_header),  is(&buf), iar(is, boost::archive::no_header) {
-//        //NOTHING TO SEE HERE
-//    }
-
 
 };
 #endif //MESSAGEPROTOCOL_SERIALIZABLE_H

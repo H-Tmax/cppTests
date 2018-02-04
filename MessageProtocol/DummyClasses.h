@@ -30,7 +30,6 @@ public:
         ar & c;
     }
 
-
     //DEV REQUIRED
     int sendable_type() {
         return DUMMY_SENDABLE;
