@@ -1,8 +1,4 @@
-MessageProtocol/cmake-build-debug/*
-MessageProtocol/.idea/*
-MessageProtocol/CMakeLists.txt
 CMakeLists.txt
-.idea/*
-cmake-build-debug/*
-cmake-build-debug/
 .idea/
+cmake-build-debug/
+
