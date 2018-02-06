@@ -32,33 +32,25 @@ public:
             //Temporarily store total payload size since header will be updated
             int remainedPayloadSize = this->header.contentsSize;
 
-            PartialHeader partial;
-            this->initializePartialHeader(partial);
-
-            partial.ID = this->makeAUniqueID();
+            //Size of the payload that will be split per raw Sendable
+            int splitSize = (PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader));
 
             //TCPHeader is already set, only needs to update the size of the payload
-            this->setHeader((PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader)));
+            this->setHeader(splitSize);
 
-            int lastPayloadSize = this->header.contentsSize % remainedPayloadSize;
-
-            if (lastPayloadSize) {
-                partial.totalCount = (this->header.contentsSize / remainedPayloadSize) + 1;
-            } else {
-                partial.totalCount = (this->header.contentsSize / remainedPayloadSize);
-            }
-
-            partial.Sequence = 1;
+            PartialHeader partial;
+            this->initializePartialHeader(partial, remainedPayloadSize);
 
             //all the headers are set at this point
             //TODO: CHECK IF THIS LOOP IS VALID?
             while(remainedPayloadSize > 0){
-                if (this->header.contentsSize != PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader)){
+                //Change the payload size ONLY for the last raw Sendable
+                if (this->header.contentsSize != splitSize){
                     this->header.contentsSize = remainedPayloadSize;
                 }
                 this->transmitSendable(receiverFD, this->amalgamate(partial, (partial.Sequence - 1)));
                 this->incrementSeq(partial);
-                remainedPayloadSize =- PIPE_BUF;
+                remainedPayloadSize =- splitSize;
             }
         }
     }
@@ -97,10 +89,18 @@ private:
         this->os.flush();
     }
 
-    void initializePartialHeader(PartialHeader partial) {
-        partial.ID = 0;
-        partial.Sequence = 0;
-        partial.totalCount = 0;
+    void initializePartialHeader(PartialHeader partial, int remainedPayloadSize) {
+        partial.ID = this->makeAUniqueID();
+
+        partial.Sequence = 1;
+
+        int lastPayloadSize = this->header.contentsSize % remainedPayloadSize;
+
+        if (lastPayloadSize) {
+            partial.totalCount = (this->header.contentsSize / remainedPayloadSize) + 1;
+        } else {
+            partial.totalCount = (this->header.contentsSize / remainedPayloadSize);
+        }
     }
 
     byte *amalgamate(TCPHeader header) {
