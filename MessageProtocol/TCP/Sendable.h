@@ -12,32 +12,55 @@ public:
     void tb_sendto(Recipient receiver) {
         int receiverFD = receiver->pipe.getWriteFd();
 
-        this->sendable_main();
+        //Initialize header in case it still has old header values
+        this->initialize();
 
-        this->transmitSendable(receiverFD, this->makeCompleteSendable());
-    }
+        //populate the header and the payload
+        this->getSendableInfo();
 
-    void initializeHeader() {
-        this->header.contentsType = 0;
-        this->header.contentsSize = 0;
-        this->header.contentsSplit = false;
-    }
+        this->makeAUniqueID();
 
-    byte *makeCompleteSendable() {
-        int headerSize = sizeof(TCPHeader);
 
-        byte *concatenated = new unsigned char[headerSize + this->header.contentsSize];
+        if (!this->header.contentsSplit) {
 
-        memcpy(concatenated, &this->header, headerSize);
+            this->transmitSendable(receiverFD, this->amalgamate(this->header));
 
-        memcpy(concatenated + headerSize, this->payload, this->header.contentsSize);
+        } else {
+            //Already know that this is a big message
 
-        return concatenated;
-    }
+            //this->setHeaders()
+            //Temporarily store total payload size since header will be updated
+            int remainedPayloadSize = this->header.contentsSize;
 
-    void transmitSendable(int targetFD, byte *payload) {
-        write(targetFD, payload, sizeof(TCPHeader) + this->header.contentsSize);
-        delete[] payload;
+            PartialHeader partial;
+            this->initializePartialHeader(partial);
+
+            partial.ID = this->makeAUniqueID();
+
+            //TCPHeader is already set, only needs to update the size of the payload
+            this->setHeader((PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader)));
+
+            int lastPayloadSize = this->header.contentsSize % remainedPayloadSize;
+
+            if (lastPayloadSize) {
+                partial.totalCount = (this->header.contentsSize / remainedPayloadSize) + 1;
+            } else {
+                partial.totalCount = (this->header.contentsSize / remainedPayloadSize);
+            }
+
+            partial.Sequence = 1;
+
+            //all the headers are set at this point
+            //TODO: CHECK IF THIS LOOP IS VALID?
+            while(remainedPayloadSize > 0){
+                if (this->header.contentsSize != PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader)){
+                    this->header.contentsSize = remainedPayloadSize;
+                }
+                this->transmitSendable(receiverFD, this->amalgamate(partial, (partial.Sequence - 1)));
+                this->incrementSeq(partial);
+                remainedPayloadSize =- PIPE_BUF;
+            }
+        }
     }
 
     void setHeader(int sendable_type, int contentsSize, bool isSplit) {
@@ -54,36 +77,155 @@ public:
      * pure virtual method that NEEDS TO BE OVERRIDEN
      * @return type of the Sendable based on Enum (TCP_TYPE_LIST)
      */
-    virtual int sendable_type() = 0;
+    virtual int getSendableType() = 0;
 
-    virtual void *sendable_main() = 0;
+    virtual void *getSendableInfo() = 0;
+
+private:
+    void setHeader(int contentsSize){
+        this->header.contentsSize = contentsSize;
+    }
+
+    void incrementSeq(PartialHeader partial){
+        partial.Sequence =+ 1;
+    }
+
+    void initialize() {
+        this->header.contentsType = 0;
+        this->header.contentsSize = 0;
+        this->header.contentsSplit = false;
+        this->os.flush();
+    }
+
+    void initializePartialHeader(PartialHeader partial) {
+        partial.ID = 0;
+        partial.Sequence = 0;
+        partial.totalCount = 0;
+    }
+
+    byte *amalgamate(TCPHeader header) {
+        int headerSize = sizeof(TCPHeader);
+
+        byte *concatenated = new unsigned char[headerSize + this->header.contentsSize];
+
+        memcpy(concatenated, &this->header, headerSize);
+
+        memcpy(concatenated + headerSize, this->payload, this->header.contentsSize);
+
+        return concatenated;
+    }
+
+    byte *amalgamate(PartialHeader partial, int payloadMarker) {
+        int headerSize = sizeof(TCPHeader);
+
+        byte *concatenated = new unsigned char[headerSize + sizeof(PartialHeader) + this->header.contentsSize];
+
+        //adding TCP header first
+        memcpy(concatenated, &this->header, headerSize);
+
+        //Then adding partial header
+        memcpy(concatenated + headerSize, &partial, sizeof(PartialHeader));
+
+        //Adding the payload
+        memcpy(concatenated + headerSize + sizeof(PartialHeader),
+               this->payload + (payloadMarker * this->header.contentsSize),
+               this->header.contentsSize + sizeof(PartialHeader) + this->header.contentsSize);
+
+        return concatenated;
+    }
+
+    void transmitSendable(int targetFD, byte *payload) {
+        write(targetFD, payload, sizeof(TCPHeader) + this->header.contentsSize);
+        delete[] payload;
+    }
+
+    long int makeAUniqueID() {
+        //To get a random value based on time
+        std::srand(std::time(nullptr));
+
+        //Get two random values to be used as salts
+        int salt = std::rand();
+        int pepper = std::rand();
+        uint64_t pointerAddress = reinterpret_cast<uint64_t>(this);
+
+        //Setup the hash function to be used for the type (long int)
+        std::hash<long int> hash;
+
+        //Sprinkle some spices, then brutally hash it away
+        return hash(pointerAddress + salt + pepper);
+    }
+
 };
 
-template<class Derived>
+//Covariant return type function to get "this" of a derived object
+template<typename Derived>
 void *run(Derived *derivedSendable) {
-    //Initialize header in case it still has old header values
-    derivedSendable->initializeHeader();
-
     //Serialize the contents (derived Sendable)
     derivedSendable->oar << *derivedSendable;
 
     //Get the size of the contents
-    int totalSize = derivedSendable->buf.str().length();
+    int totalPayloadSize = derivedSendable->buf.str().length();
 
-    //Pipe guarantees atomicity only up to 512 bytes.
-    if (totalSize > 512) {
-//        std::string a = "hello world0101010";
-//        std::hash<std::string> hash;
-//        std::cout << hash(a) << std::endl;
+    //Mark the header if the payload size is bigger than the size which the kernel's pipe can guarantee the atomicity
+    bool isBigSendable = (totalPayloadSize + sizeof(TCPHeader)) > PIPE_BUF ? true : false;
 
-        //makeSendables(serialized)
-    } else {
-        //Set the Sendable header properly
-        derivedSendable->setHeader(derivedSendable->sendable_type(), totalSize, false);
+    //Set the Sendable header properties
+    derivedSendable->setHeader(derivedSendable->getSendableType(), totalPayloadSize, isBigSendable);
 
-        //Set the payload, which is the serialized object
-        derivedSendable->setPayload((byte *) derivedSendable->buf.str().c_str());
-    }
+    //Set the payload, which is a byte pointer of the serialized object
+    derivedSendable->setPayload((byte *) derivedSendable->buf.str().c_str());
 }
 
 #endif //MESSAGEPROTOCOL_SENDABLE_H
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//        //Pipe guarantees atomicity only up to 512 bytes.
+//        if (totalSize > 512) {
+//            //hash refactoring
+//
+//
+//            int maxPayloadSize = PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader);
+//            int totalCount = totalSize % maxPayloadSize ? (totalSize / maxPayloadSize) + 1
+//                                                        : (totalSize / maxPayloadSize);
+//
+//            int seqNum = 0;
+//
+//            PartialHeader ph;
+//
+//            derivedSendable->setPayload((byte *) derivedSendable->buf.str().c_str());
+//
+//            while (seqNum < totalCount - 1) {
+//                derivedSendable->setHeader(derivedSendable->sendable_type(), maxPayloadSize, true);
+//                ph.ID = hashed;
+//                ph.Sequence = seqNum + 1;
+//                ph.Total = totalCount;
+//
+//                byte *concatenated = new unsigned char[sizeof(derivedSendable->header)
+//                                                       + sizeof(ph) + maxPayloadSize];
+//
+//                memcpy(concatenated, &derivedSendable->header, sizeof(derivedSendable->header));
+//
+//                memcpy(concatenated + sizeof(derivedSendable->header), &ph, sizeof(ph));
+//
+//                memcpy(concatenated + sizeof(derivedSendable->header) + sizeof(ph),
+//                       derivedSendable->payload + (seqNum * maxPayloadSize), maxPayloadSize);
+//
+//                seqNum++;
+//            }
+//
+//            if (totalSize % maxPayloadSize) {
+//            }
+
+

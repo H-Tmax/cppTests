@@ -18,7 +18,6 @@
  * WHATEVER YOU WANT, WHOMEVER YOU WANT (some conditions may apply)
  */
 
-//sds
 //same with typedef unsigned char byte;
 using byte = unsigned char;
 
@@ -28,11 +27,16 @@ struct TCPHeader {
     bool contentsSplit;
 };
 
-struct PartialHeader : public Serializable {
-    //Using hashed value of the message's body + random salt * 2
+struct PartialHeader {
     long int ID;
     int Sequence;
-    int Total;
+    int totalCount;
+};
+
+struct RawSendable{
+    int sendableID;
+    int size;
+    byte* serializedPayload;
 };
 
 

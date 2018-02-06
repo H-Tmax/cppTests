@@ -22,21 +22,32 @@ public:
     long int c;
     int d;
 
+    /////////////////FOR BIGMESSAGE TESTING//////////////////
+    //char hh[30000];
+    /////////////////////////////////////////////////////////
+
+
+
     //DEV REQUIRED
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
         ar & b;
         ar & c;
+        ar & d;
+        /////////////////FOR BIGMESSAGE TESTING//////////////////
+        //ar & hh;
+        /////////////////////////////////////////////////////////
+
     }
 
     //DEV REQUIRED
-    int sendable_type() {
+    int getSendableType() {
         return DUMMY_SENDABLE;
     }
 
     //DEV REQUIRED
-    void *sendable_main() {
+    void *getSendableInfo() {
         return run(this);
     }
 
@@ -55,6 +66,8 @@ public:
     void foo() {
         std::cout << "class A's foo" << std::endl;
     }
+
+
 
 };
 

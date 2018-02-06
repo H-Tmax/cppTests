@@ -16,7 +16,5 @@ public:
     Serializable() : buf(), os(&buf), oar(os, boost::archive::no_header) {
         //NOTHING TO SEE HERE
     }
-
-
 };
 #endif //MESSAGEPROTOCOL_SERIALIZABLE_H
