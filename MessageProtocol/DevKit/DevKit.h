@@ -7,6 +7,8 @@
  * @date 2018-FEB-07
  * @version 1.0
  * @brief Macro library for development phase
+ *
+ * THIS HEADER FILE CONTAINS A KIT OF TOOLS FOR DEVELOPERS (I HOPE)
  */
 #include <chrono>
 #include <iostream>
