@@ -3,7 +3,7 @@
 
 #include "TCP.h"
 
-class Sendable : public Serializable {
+class Sendable : public Serializable<Sendable> {
 public:
     TCPHeader header;
     byte *payload;

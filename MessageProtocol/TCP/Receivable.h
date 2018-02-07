@@ -11,6 +11,13 @@ public:
         //NOTHING TO SEE HERE
     }
 
+    virtual ~Receivable() {
+        while(!receivedRawSendables.empty()) {
+            delete[] receivedRawSendables.top()->serializedPayload;
+            receivedRawSendables.pop();
+        }
+    }
+
     void tb_recv() {
         //Initialize buffer in case it still has old buffer values
         this->initializeBuffers();
@@ -26,7 +33,7 @@ public:
 
         bool isBigSendable = ((TCPHeader *) this->headerBuffer)->contentsSplit;
 
-        RawSendable sashimi;
+        std::shared_ptr<RawSendable> sashimi(new RawSendable());
 
         ///////////////////////////////////////////////////////
         //if (isBigSendable) -> handle big message
@@ -41,24 +48,25 @@ public:
         //Read the payload
         read(this->pipe.getReadFd(), payloadBuffer, payloadSize);
 
-        sashimi.sendableID = payloadType;
-        sashimi.size = payloadSize;
-        sashimi.serializedPayload = payloadBuffer;
+        sashimi->sendableID = payloadType;
+        sashimi->size = payloadSize;
+        sashimi->serializedPayload = payloadBuffer;
 
         this->receivedRawSendables.push(sashimi);
+//        delete[] payloadBuffer;
     }
 
     void initializeBuffers() {
         memset(&headerBuffer, 0, sizeof(TCPHeader));
         //TODO: DELETE HERE?
-        delete this->payloadBuffer;
+        //delete this->payloadBuffer;
     }
 
     Pipe pipe;
     byte headerBuffer[sizeof(TCPHeader)];
     byte* payloadBuffer;
 
-    std::stack<RawSendable> receivedRawSendables;
+    std::stack<std::shared_ptr<RawSendable>> receivedRawSendables;
 
 
 };
