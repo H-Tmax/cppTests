@@ -1,9 +1,15 @@
 #include <iostream>
 #include <sstream>
-#include <map>
+
+
 #include "DummyClasses.h"
 #include "TCP/Sendable.h"
 #include "TCP/TCP_TYPE_LIST.h"
+#include "DevKit.h"
+
+
+
+
 
 int main() {
 
@@ -17,20 +23,12 @@ int main() {
     to_be_sent->d = 3333333;
 
 
+    START();
+
     to_be_sent->tb_sendto(receiver);
     receiver->tb_recv();
 
-//timer start
-//    clock_t begin = clock();
-//
-//
-//
-//
-//    //timer ends
-//    clock_t end = clock();
-//    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-//    std::cout << "time = " << elapsed_secs << std::endl;
-//
+    END();
 
 
 //30025
@@ -51,9 +49,9 @@ int main() {
     boost::archive::binary_iarchive iar(is, boost::archive::no_header);
     iar >> ds;
 
-    std::cout << "reading " << ds.b << std::endl;
-    std::cout << "reading " << ds.c << std::endl;
-    std::cout << "reading " << ds.d << std::endl;
+    PO("reading: ", ds.b, "\n");
+    POL("reading: ", ds.c);
+    std::cout << "reading: " << ds.d << std::endl;
 
 
 

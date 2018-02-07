@@ -39,7 +39,7 @@ public:
             this->setHeader(splitSize);
 
             PartialHeader partial;
-            this->initializePartialHeader(partial, remainedPayloadSize);
+            this->initialize(partial);
 
             //all the headers are set at this point
             //TODO: CHECK IF THIS LOOP IS VALID?
@@ -89,17 +89,17 @@ private:
         this->os.flush();
     }
 
-    void initializePartialHeader(PartialHeader partial, int remainedPayloadSize) {
+    void initialize(PartialHeader partial) {
         partial.ID = this->makeAUniqueID();
 
         partial.Sequence = 1;
 
-        int lastPayloadSize = this->header.contentsSize % remainedPayloadSize;
+        int lastPayloadSize = this->header.contentsSize % this->header.contentsSize;
 
         if (lastPayloadSize) {
-            partial.totalCount = (this->header.contentsSize / remainedPayloadSize) + 1;
+            partial.totalCount = (this->header.contentsSize / this->header.contentsSize) + 1;
         } else {
-            partial.totalCount = (this->header.contentsSize / remainedPayloadSize);
+            partial.totalCount = (this->header.contentsSize / this->header.contentsSize);
         }
     }
 
