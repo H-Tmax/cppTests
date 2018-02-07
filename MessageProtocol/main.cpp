@@ -4,7 +4,7 @@
 #include "DummyClasses.h"
 #include "TCP/Sendable.h"
 #include "TCP/TCP_TYPE_LIST.h"
-#include "DevKit.h"
+#include "DevKit/DevKit.h"
 #include "gtest/gtest.h"
 
 
