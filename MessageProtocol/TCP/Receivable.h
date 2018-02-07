@@ -16,6 +16,7 @@ public:
             delete[] receivedRawSendables.top()->serializedPayload;
             receivedRawSendables.pop();
         }
+        delete[] payloadBuffer;
     }
 
     void tb_recv() {

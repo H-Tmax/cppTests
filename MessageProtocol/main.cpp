@@ -28,18 +28,15 @@ TEST(Message, testSendRecv) {
     std::shared_ptr<RawSendable> whichSashimi(receiver->receivedRawSendables.top());
     receiver->receivedRawSendables.pop();
 
-    DummySendable ds;
+    DummySendable received;
+    std::string byteArray((char *)whichSashimi->serializedPayload, whichSashimi->size);
+    received.populateItsOwnData(byteArray);
 
-    std::stringbuf buf;
-    buf.sputn((char *)receiver->payloadBuffer, whichSashimi->size);
-    //buf.sputn((char *)writer->payload, 21);
-    std::istream is(&buf);
-    boost::archive::binary_iarchive iar(is, boost::archive::no_header);
-    iar >> ds;
 
-    PO("reading: ", ds.b, "\n");
-    POL("reading: ", ds.c);
-    std::cout << "reading: " << ds.d << std::endl;
+    PO("reading: ", received.b, "\n");
+    POL("reading: ", received.c);
+    std::cout << "reading: " << received.d << std::endl;
+    EXPECT_EQ(received, *to_be_sent);
     delete to_be_sent;
     delete receiver;
 }

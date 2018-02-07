@@ -8,7 +8,7 @@
 #include "TCP/Receivable.h"
 #include <iostream>
 
-class DummySendable : public Sendable {
+class DummySendable : public Sendable<DummySendable> {
 public:
     DummySendable() {
         //NOTHING TO SEE HERE
@@ -26,8 +26,6 @@ public:
     //char hh[30000];
     /////////////////////////////////////////////////////////
 
-
-
     //DEV REQUIRED
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
@@ -41,6 +39,16 @@ public:
 
     }
 
+    bool operator==(const DummySendable &rhs) const {
+        return b == rhs.b &&
+               c == rhs.c &&
+               d == rhs.d;
+    }
+
+    bool operator!=(const DummySendable &rhs) const {
+        return !(rhs == *this);
+    }
+
     //DEV REQUIRED
     int getSendableType() {
         return DUMMY_SENDABLE;
@@ -50,11 +58,6 @@ public:
     void *getSendableInfo() {
         return run(this);
     }
-
-
-
-
-
 };
 
 class DummyReceivable : public Receivable {
@@ -66,9 +69,6 @@ public:
     void foo() {
         std::cout << "class A's foo" << std::endl;
     }
-
-
-
 };
 
 

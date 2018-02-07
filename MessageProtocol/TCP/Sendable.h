@@ -3,7 +3,8 @@
 
 #include "TCP.h"
 
-class Sendable : public Serializable<Sendable> {
+template <class DerivedSendable>
+class Sendable : public Serializable<DerivedSendable> {
 public:
     TCPHeader header;
     byte *payload;
@@ -110,7 +111,7 @@ private:
 
         memcpy(concatenated, &this->header, headerSize);
 
-        memcpy(concatenated + headerSize, this->payload, this->header.contentsSize);
+        memcpy(concatenated + headerSize, this->payload, (size_t)this->header.contentsSize);
 
         return concatenated;
     }
