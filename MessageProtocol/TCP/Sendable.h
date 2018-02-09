@@ -23,8 +23,25 @@ public:
 
         if (!tcpHeader.payloadSplit) {
 
-            this->transmitSendable(receiver->pipe.getWriteFd(), this->amalgamate(tcpHeader));
 
+            //attach payload with header
+            //this->transmitSendable(fd, complete payload)
+            //where to get write size?
+            this->transmitSendable(
+                    receiver->pipe.getWriteFd(),
+                    this->amalgamate(tcpHeader, payload),
+                    tcpHeader.payloadSize);
+
+            POL("sending payload size: ", tcpHeader.payloadSize);
+
+            ////
+            ///////testing deserialize code
+            //DerivedSendable ds;
+//            ds.unmarshal(payload);
+//            POL("\n", ds.b);
+//            POL(ds.c);
+//            POL(ds.d);
+            ///////
 
 
 
@@ -53,8 +70,11 @@ public:
                 if (tcpHeader.payloadSize < splitSize){
                     tcpHeader.payloadSize = remainingPayloadSize;
                 }
-                this->transmitSendable(receiver->pipe.getWriteFd(), this->amalgamate(partial, (partial.Sequence - 1)), tcpHeader.payloadSize);
-                this->incrementSeq(partial);
+                /**
+                 *
+                 */
+                //this->transmitSendable(receiver->pipe.getWriteFd(), this->amalgamate(partial, (partial.Sequence - 1)), tcpHeader.payloadSize);
+                //this->incrementSeq(partial);
                 remainingPayloadSize =- splitSize;
             }
         }
@@ -70,11 +90,15 @@ public:
 
 private:
 
-    void setHeader(TCPHeader header, std::string payload) {
+    void setHeader(TCPHeader &header, std::string payload) {
         int payloadSize = payload.length();
+
         header.sendableType = this->getSendableType();
         header.payloadSize = payloadSize;
+        POL("set header's payloadsize(payload): ", payloadSize);
+        POL("set header's payloadsize(header): ", header.payloadSize);
         header.payloadSplit = payloadSize + sizeof(header) > PIPE_BUF ? true : false;
+        POL("is split?", header.payloadSplit);
     }
 
     void setHeader(TCPHeader header, int payloadSize){
@@ -95,6 +119,24 @@ private:
         }
     }
 
+    byte *amalgamate(TCPHeader header, std::string payload) {
+        int headerSize = sizeof(TCPHeader);
+
+        byte *finalPayload = new unsigned char[headerSize + header.payloadSize];
+
+        memcpy(finalPayload, &header, headerSize);
+
+        memcpy(finalPayload + headerSize, payload.c_str(), header.payloadSize);
+
+        return finalPayload;
+    }
+
+    void transmitSendable(int targetFD, byte *payload, int payloadSize) {
+        POL("transmitsendable payloadsize:", payloadSize);
+        write(targetFD, payload, sizeof(TCPHeader) + payloadSize);
+        delete payload;
+    }
+
     long int makeAUniqueID() {
         //To get a random value based on time
         std::srand(std::time(nullptr));
@@ -111,10 +153,7 @@ private:
         return hash(pointerAddress + salt + pepper);
     }
 
-    void transmitSendable(int targetFD, byte *payload, int payloadSize) {
-        write(targetFD, payload, sizeof(TCPHeader) + payloadSize);
-        delete[] payload;
-    }
+
 
 
 
@@ -124,35 +163,28 @@ private:
 
 
 
-    byte *amalgamate(TCPHeader header) {
-        int headerSize = sizeof(TCPHeader);
 
-        byte *concatenated = new unsigned char[headerSize + this->header.contentsSize];
-
-        memcpy(concatenated, &this->header, headerSize);
-
-        memcpy(concatenated + headerSize, this->payload, (size_t)this->header.contentsSize);
-
-        return concatenated;
-    }
 
     byte *amalgamate(PartialHeader partial, int payloadMarker) {
         int headerSize = sizeof(TCPHeader);
 
-        byte *concatenated = new unsigned char[headerSize + sizeof(PartialHeader) + this->header.contentsSize];
+        /**
+         *
+         */
+        //byte *concatenated = new unsigned char[headerSize + sizeof(PartialHeader) + this->header.contentsSize];
 
         //adding TCP header first
-        memcpy(concatenated, &this->header, headerSize);
+        //memcpy(concatenated, &this->header, headerSize);
 
         //Then adding partial header
-        memcpy(concatenated + headerSize, &partial, sizeof(PartialHeader));
+        //memcpy(concatenated + headerSize, &partial, sizeof(PartialHeader));
 
         //Adding the payload
-        memcpy(concatenated + headerSize + sizeof(PartialHeader),
-               this->payload + (payloadMarker * this->header.contentsSize),
-               this->header.contentsSize + sizeof(PartialHeader) + this->header.contentsSize);
+        //memcpy(concatenated + headerSize + sizeof(PartialHeader),
+        //       this->payload + (payloadMarker * this->header.contentsSize),
+        //      this->header.contentsSize + sizeof(PartialHeader) + this->header.contentsSize);
 
-        return concatenated;
+        //return concatenated;
     }
 
 

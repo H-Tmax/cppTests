@@ -27,6 +27,10 @@ TEST(TCP, testSendRecv) {
     std::string byteArray((char *)whichSashimi->serializedPayload, whichSashimi->size);
     received.unmarshal(byteArray);
 
+    POL("\nreceived b: ", received.b);
+    POL("received c: ", received.c);
+    POL("received d: ", received.d);
+
     delete to_be_sent;
     delete receiver;
 }

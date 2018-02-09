@@ -28,6 +28,7 @@ public:
 
         //Get the payload size from the header
         int payloadSize = ((TCPHeader *) this->headerBuffer)->payloadSize;
+        POL("\nPayloadsize: ", payloadSize);
 
         //Get the payload type from the header
         int payloadType = ((TCPHeader *) this->headerBuffer)->sendableType;
@@ -53,6 +54,8 @@ public:
         sashimi->size = payloadSize;
         sashimi->serializedPayload = payloadBuffer;
 
+
+
         this->receivedRawSendables.push(sashimi);
 //        delete[] payloadBuffer;
     }
@@ -65,7 +68,7 @@ public:
 
     Pipe pipe;
     byte headerBuffer[sizeof(TCPHeader)];
-    payload payloadBuffer;
+    byte* payloadBuffer;
 
     std::stack<std::shared_ptr<RawSendable>> receivedRawSendables;
 

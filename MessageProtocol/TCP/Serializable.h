@@ -4,6 +4,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
+#include "../DevKit/DevKit.h"
 
 template <class DerivedSerializable>
 class Serializable {
@@ -20,11 +21,13 @@ public:
     }
 
     void unmarshal(std::string buf){
+        POL("size of the input: ", buf.length());
         std::stringbuf buffer;
         buffer.sputn((char *)buf.c_str(), buf.length());
         std::istream is(&buffer);
         boost::archive::binary_iarchive iar(is, boost::archive::no_header);
         DerivedSerializable *ds = static_cast<DerivedSerializable*>(this);
+        POL("readched here!");
         iar >> *ds;
     }
 };
