@@ -3,68 +3,64 @@
 
 #include "TCP.h"
 
+
+
+/////////////////////////////////
+#include "../DevKit/DevKit.h"
+
 template <class DerivedSendable>
 class Sendable : public Serializable<DerivedSendable> {
 public:
-    TCPHeader header;
-    byte *payload;
-
     template<typename Recipient>
     void tb_sendto(Recipient receiver) {
-        int receiverFD = receiver->pipe.getWriteFd();
 
-        //Initialize header in case it still has old header values
-        this->initialize();
+        TCPHeader tcpHeader;
+        std::string payload;
 
-        //populate the header and the payload
-        this->getSendableInfo();
+        payload = this->marshal();
 
-        this->makeAUniqueID();
+        this->setHeader(tcpHeader, payload);
+
+        if (!tcpHeader.payloadSplit) {
+
+            this->transmitSendable(receiver->pipe.getWriteFd(), this->amalgamate(tcpHeader));
 
 
-        if (!this->header.contentsSplit) {
 
-            this->transmitSendable(receiverFD, this->amalgamate(this->header));
+
+
 
         } else {
             //Already know that this is a big message
 
-            //this->setHeaders()
             //Temporarily store total payload size since header will be updated
-            int remainedPayloadSize = this->header.contentsSize;
+            int remainingPayloadSize = tcpHeader.payloadSize;
 
             //Size of the payload that will be split per raw Sendable
-            int splitSize = (PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader));
+            const int splitSize = (PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader));
 
             //TCPHeader is already set, only needs to update the size of the payload
-            this->setHeader(splitSize);
+            this->setHeader(tcpHeader, splitSize);
 
-            PartialHeader partial;
-            this->initialize(partial);
+            PartialHeader partialHeader;
+
+            this->setHeader(partialHeader, remainingPayloadSize, splitSize);
 
             //all the headers are set at this point
             //TODO: CHECK IF THIS LOOP IS VALID?
-            while(remainedPayloadSize > 0){
+            while(remainingPayloadSize > 0){
                 //Change the payload size ONLY for the last raw Sendable
-                if (this->header.contentsSize != splitSize){
-                    this->header.contentsSize = remainedPayloadSize;
+                if (tcpHeader.payloadSize < splitSize){
+                    tcpHeader.payloadSize = remainingPayloadSize;
                 }
-                this->transmitSendable(receiverFD, this->amalgamate(partial, (partial.Sequence - 1)));
+                this->transmitSendable(receiver->pipe.getWriteFd(), this->amalgamate(partial, (partial.Sequence - 1)), tcpHeader.payloadSize);
                 this->incrementSeq(partial);
-                remainedPayloadSize =- splitSize;
+                remainingPayloadSize =- splitSize;
             }
         }
     }
 
-    void setHeader(int sendable_type, int contentsSize, bool isSplit) {
-        this->header.contentsType = sendable_type;
-        this->header.contentsSize = contentsSize;
-        this->header.contentsSplit = isSplit;
-    }
 
-    void setPayload(byte *payload) {
-        this->payload = payload;
-    }
 
     /**
      * pure virtual method that NEEDS TO BE OVERRIDEN
@@ -72,37 +68,61 @@ public:
      */
     virtual int getSendableType() = 0;
 
-    virtual void *getSendableInfo() = 0;
-
 private:
-    void setHeader(int contentsSize){
-        this->header.contentsSize = contentsSize;
+
+    void setHeader(TCPHeader header, std::string payload) {
+        int payloadSize = payload.length();
+        header.sendableType = this->getSendableType();
+        header.payloadSize = payloadSize;
+        header.payloadSplit = payloadSize + sizeof(header) > PIPE_BUF ? true : false;
     }
+
+    void setHeader(TCPHeader header, int payloadSize){
+        header.payloadSize = payloadSize;
+    }
+
+    void setHeader(PartialHeader partial, int payloadSize, int splitSize) {
+        partial.ID = this->makeAUniqueID();
+
+        partial.Sequence = 1;
+
+        int lastPayloadSize = payloadSize % splitSize;
+
+        if (lastPayloadSize) {
+            partial.totalCount = (payloadSize / splitSize) + 1;
+        } else {
+            partial.totalCount = (payloadSize / splitSize);
+        }
+    }
+
+    long int makeAUniqueID() {
+        //To get a random value based on time
+        std::srand(std::time(nullptr));
+
+        //Get two random values to be used as salts
+        int salt = std::rand();
+        int pepper = std::rand();
+        uint64_t pointerAddress = reinterpret_cast<uint64_t>(this);
+
+        //Setup the hash function to be used for the type (long int)
+        std::hash<long int> hash;
+
+        //Sprinkle some spices, then brutally hash it away
+        return hash(pointerAddress + salt + pepper);
+    }
+
+    void transmitSendable(int targetFD, byte *payload, int payloadSize) {
+        write(targetFD, payload, sizeof(TCPHeader) + payloadSize);
+        delete[] payload;
+    }
+
+
 
     void incrementSeq(PartialHeader partial){
         partial.Sequence =+ 1;
     }
 
-    void initialize() {
-        this->header.contentsType = 0;
-        this->header.contentsSize = 0;
-        this->header.contentsSplit = false;
-        this->os.flush();
-    }
 
-    void initialize(PartialHeader partial) {
-        partial.ID = this->makeAUniqueID();
-
-        partial.Sequence = 1;
-
-        int lastPayloadSize = this->header.contentsSize % this->header.contentsSize;
-
-        if (lastPayloadSize) {
-            partial.totalCount = (this->header.contentsSize / this->header.contentsSize) + 1;
-        } else {
-            partial.totalCount = (this->header.contentsSize / this->header.contentsSize);
-        }
-    }
 
     byte *amalgamate(TCPHeader header) {
         int headerSize = sizeof(TCPHeader);
@@ -135,46 +155,22 @@ private:
         return concatenated;
     }
 
-    void transmitSendable(int targetFD, byte *payload) {
-        write(targetFD, payload, sizeof(TCPHeader) + this->header.contentsSize);
-        delete[] payload;
-    }
 
-    long int makeAUniqueID() {
-        //To get a random value based on time
-        std::srand(std::time(nullptr));
 
-        //Get two random values to be used as salts
-        int salt = std::rand();
-        int pepper = std::rand();
-        uint64_t pointerAddress = reinterpret_cast<uint64_t>(this);
 
-        //Setup the hash function to be used for the type (long int)
-        std::hash<long int> hash;
-
-        //Sprinkle some spices, then brutally hash it away
-        return hash(pointerAddress + salt + pepper);
-    }
 
 };
 
-//Covariant return type function to get "this" of a derived object
-template<typename Derived>
-void *run(Derived *derivedSendable) {
-    //Serialize the contents (derived Sendable)
-    derivedSendable->oar << *derivedSendable;
-
-    //Get the size of the contents
-    int totalPayloadSize = derivedSendable->buf.str().length();
-
-    //Mark the header if the payload size is bigger than the size which the kernel's pipe can guarantee the atomicity
-    bool isBigSendable = (totalPayloadSize + sizeof(TCPHeader)) > PIPE_BUF ? true : false;
-
-    //Set the Sendable header properties
-    derivedSendable->setHeader(derivedSendable->getSendableType(), totalPayloadSize, isBigSendable);
-
-    //Set the payload, which is a byte pointer of the serialized object
-    derivedSendable->setPayload((byte *) derivedSendable->buf.str().c_str());
-}
-
 #endif //MESSAGEPROTOCOL_SENDABLE_H
+
+
+
+
+////
+///////testing deserialize code
+//DerivedSendable ds;
+//ds.unmarshal(payload);
+//POL(ds.b);
+//POL(ds.c);
+//POL(ds.d);
+///////

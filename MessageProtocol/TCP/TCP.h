@@ -22,9 +22,9 @@
 using byte = unsigned char;
 
 struct TCPHeader {
-    int contentsType;
-    int contentsSize;
-    bool contentsSplit;
+    int sendableType;
+    int payloadSize;
+    bool payloadSplit;
 };
 
 struct PartialHeader {

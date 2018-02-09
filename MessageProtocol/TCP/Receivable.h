@@ -27,12 +27,12 @@ public:
         read(this->pipe.getReadFd(), headerBuffer, sizeof(TCPHeader));
 
         //Get the payload size from the header
-        int payloadSize = ((TCPHeader *) this->headerBuffer)->contentsSize;
+        int payloadSize = ((TCPHeader *) this->headerBuffer)->payloadSize;
 
         //Get the payload type from the header
-        int payloadType = ((TCPHeader *) this->headerBuffer)->contentsType;
+        int payloadType = ((TCPHeader *) this->headerBuffer)->sendableType;
 
-        bool isBigSendable = ((TCPHeader *) this->headerBuffer)->contentsSplit;
+        bool isBigSendable = ((TCPHeader *) this->headerBuffer)->payloadSplit;
 
         std::shared_ptr<RawSendable> sashimi(new RawSendable());
 
@@ -65,7 +65,7 @@ public:
 
     Pipe pipe;
     byte headerBuffer[sizeof(TCPHeader)];
-    byte* payloadBuffer;
+    payload payloadBuffer;
 
     std::stack<std::shared_ptr<RawSendable>> receivedRawSendables;
 

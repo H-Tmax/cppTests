@@ -54,10 +54,6 @@ public:
         return DUMMY_SENDABLE;
     }
 
-    //DEV REQUIRED
-    void *getSendableInfo() {
-        return run(this);
-    }
 };
 
 class DummyReceivable : public Receivable {

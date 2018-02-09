@@ -8,7 +8,7 @@
 #include "gtest/gtest.h"
 
 
-TEST(Message, testSendRecv) {
+TEST(TCP, testSendRecv) {
     DummyReceivable *receiver = new DummyReceivable();
     DummySendable *to_be_sent = new DummySendable();
     //TODO:OVERFLOW HANDLING?
@@ -16,13 +16,8 @@ TEST(Message, testSendRecv) {
     to_be_sent->c = 7777777777777777777;
     to_be_sent->d = 3333333;
 
-    START();
-
     to_be_sent->tb_sendto(receiver);
     receiver->tb_recv();
-
-    END();
-//30025
 
     //DESERIALIZE TEST CODE
     std::shared_ptr<RawSendable> whichSashimi(receiver->receivedRawSendables.top());
@@ -30,13 +25,8 @@ TEST(Message, testSendRecv) {
 
     DummySendable received;
     std::string byteArray((char *)whichSashimi->serializedPayload, whichSashimi->size);
-    received.populateItsOwnData(byteArray);
+    received.unmarshal(byteArray);
 
-
-    PO("reading: ", received.b, "\n");
-    POL("reading: ", received.c);
-    std::cout << "reading: " << received.d << std::endl;
-    EXPECT_EQ(received, *to_be_sent);
     delete to_be_sent;
     delete receiver;
 }
@@ -60,16 +50,16 @@ public:
     }
 };
 
-TEST(Message, testSerializeDeserialize) {
+TEST(TCP, testSerializeDeserialize) {
     DummySerializable original;
     original.intlist.push_back(111);
     original.intlist.push_back(2222);
     original.intlist.push_back(33333);
 
-    std::string bufStr = original.toBytes();
+    std::string bufStr = original.marshal();
 
     DummySerializable deserialized;
-    deserialized.populateItsOwnData(bufStr);
+    deserialized.unmarshal(bufStr);
 
     EXPECT_EQ(deserialized, original);
 }
