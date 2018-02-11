@@ -15,7 +15,7 @@
 
 /**
  * Target & payload type agnostic messaging
- * WHATEVER YOU WANT, WHOMEVER YOU WANT (some conditions may apply)
+ * WHATEVER YOU WANT, TO WHOMEVER YOU WANT (some conditions may apply)
  */
 
 //same with typedef unsigned char byte;
@@ -29,7 +29,7 @@ struct TCPHeader {
 
 struct PartialHeader {
     long int ID;
-    int Sequence;
+    int sequence;
     int totalCount;
 };
 
