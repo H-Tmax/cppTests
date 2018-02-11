@@ -14,38 +14,14 @@ public:
     template<typename Recipient>
     void tb_sendto(Recipient receiver) {
 
-        TCPHeader tcpHeader;
         std::string payload;
+        TCPHeader tcpHeader;
 
         payload = this->marshal();
-
-        this->setHeader(tcpHeader, payload);
+        tcpHeader = initializeHeader(payload);
 
         if (!tcpHeader.payloadSplit) {
-
-
-            //attach payload with header
-            //this->transmitSendable(fd, complete payload)
-            //where to get write size?
-            this->transmitSendable(
-                    receiver->pipe.getWriteFd(),
-                    this->amalgamate(tcpHeader, payload),
-                    tcpHeader.payloadSize);
-
-            POL("sending payload size: ", tcpHeader.payloadSize);
-
-            ////
-            ///////testing deserialize code
-            //DerivedSendable ds;
-//            ds.unmarshal(payload);
-//            POL("\n", ds.b);
-//            POL(ds.c);
-//            POL(ds.d);
-            ///////
-
-
-
-
+            this->transmitSendable(receiver, tcpHeader, payload);
 
         } else {
             //Already know that this is a big message
@@ -57,7 +33,7 @@ public:
             const int splitSize = (PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader));
 
             //TCPHeader is already set, only needs to update the size of the payload
-            this->setHeader(tcpHeader, splitSize);
+            tcpHeader.payloadSize = splitSize;
 
             PartialHeader partialHeader;
 
@@ -75,6 +51,7 @@ public:
                  */
                 //this->transmitSendable(receiver->pipe.getWriteFd(), this->amalgamate(partial, (partial.Sequence - 1)), tcpHeader.payloadSize);
                 //this->incrementSeq(partial);
+                partialHeader.Sequence++;
                 remainingPayloadSize =- splitSize;
             }
         }
@@ -90,19 +67,13 @@ public:
 
 private:
 
-    void setHeader(TCPHeader &header, std::string payload) {
+    TCPHeader initializeHeader(std::string payload) {
+        TCPHeader header;
         int payloadSize = payload.length();
-
         header.sendableType = this->getSendableType();
         header.payloadSize = payloadSize;
-        POL("set header's payloadsize(payload): ", payloadSize);
-        POL("set header's payloadsize(header): ", header.payloadSize);
         header.payloadSplit = payloadSize + sizeof(header) > PIPE_BUF ? true : false;
-        POL("is split?", header.payloadSplit);
-    }
-
-    void setHeader(TCPHeader header, int payloadSize){
-        header.payloadSize = payloadSize;
+        return header;
     }
 
     void setHeader(PartialHeader partial, int payloadSize, int splitSize) {
@@ -119,7 +90,7 @@ private:
         }
     }
 
-    byte *amalgamate(TCPHeader header, std::string payload) {
+    byte *fuse(TCPHeader header, std::string payload) {
         int headerSize = sizeof(TCPHeader);
 
         byte *finalPayload = new unsigned char[headerSize + header.payloadSize];
@@ -131,10 +102,13 @@ private:
         return finalPayload;
     }
 
-    void transmitSendable(int targetFD, byte *payload, int payloadSize) {
-        POL("transmitsendable payloadsize:", payloadSize);
-        write(targetFD, payload, sizeof(TCPHeader) + payloadSize);
-        delete payload;
+    template<typename Recipient>
+    void transmitSendable(Recipient target, TCPHeader header, std::string payload) {
+        int targetFD = target->pipe.getWriteFd();
+        int payloadSize = header.payloadSize;
+        byte * finalPayload = this->fuse(header, payload);
+        write(targetFD, finalPayload, sizeof(TCPHeader) + payloadSize);
+        delete finalPayload;
     }
 
     long int makeAUniqueID() {
@@ -157,9 +131,6 @@ private:
 
 
 
-    void incrementSeq(PartialHeader partial){
-        partial.Sequence =+ 1;
-    }
 
 
 

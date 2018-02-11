@@ -28,7 +28,7 @@ public:
 
         //Get the payload size from the header
         int payloadSize = ((TCPHeader *) this->headerBuffer)->payloadSize;
-        POL("\nPayloadsize: ", payloadSize);
+
 
         //Get the payload type from the header
         int payloadType = ((TCPHeader *) this->headerBuffer)->sendableType;
