@@ -37,7 +37,7 @@ public:
         std::string payload;
         TCPHeader tcpHeader;
 
-        //Serialize "this" object
+        //Serialize "this" object, which is a derived sendable object.
         payload = this->marshal();
         tcpHeader = initializeHeader(payload);
 
@@ -85,24 +85,23 @@ private:
      */
     template<typename Recipient>
     void transmitSendable(Recipient target, TCPHeader header, std::string payload) {
+
+        int targetFD = target->pipe.getWriteFd();
+
         if (header.payloadSplit) {
-            this->transmitSplitSendable(target, header, payload);
+            this->transmitSplitSendable(targetFD, header, payload);
         } else {
-            this->transmitSingleSendable(target, header, payload);
+            this->transmitSingleSendable(targetFD, header, payload);
         }
     }
 
     /**
      * TODO: WHAT I STATED ABOVE
-     * @tparam Recipient
      * @param target
      * @param header
      * @param payload
      */
-    template<typename Recipient>
-    void transmitSingleSendable(Recipient target, TCPHeader header, std::string payload) {
-
-        int targetFD = target->pipe.getWriteFd();
+    void transmitSingleSendable(int targetFD, TCPHeader header, std::string payload) {
 
         const byte *finalPayload = (this->fuse(header, payload)).c_str();
 
@@ -165,15 +164,11 @@ private:
      * TODO: I AM LIKE 70% SURE THIS FUNCTION CAN BE REFACTORED MORE, OR COMBINED WITH
      * TRANSMITSINGLESENDABLE SOMEHOW. SOMEHOW...
      *
-     * @tparam Recipient
      * @param target
      * @param tcpHeader
      * @param payload
      */
-    template<typename Recipient>
-    void transmitSplitSendable(Recipient target, TCPHeader tcpHeader, std::string payload) {
-
-        int targetFD = target->pipe.getWriteFd();
+    void transmitSplitSendable(int targetFD, TCPHeader tcpHeader, std::string payload) {
 
         //Temporarily store total payload size since header will be updated
         int remainingPayloadSize = tcpHeader.payloadSize;
@@ -185,10 +180,8 @@ private:
         tcpHeader.payloadSize = splitSize;
 
         PartialHeader partialHeader;
-
         partialHeader = initializeHeader(payload, splitSize);
 
-        //TODO: CHECK IF THIS LOOP IS VALID?
         while (remainingPayloadSize > 0) {
             //Change the payload size ONLY for the last raw Sendable
             if (tcpHeader.payloadSize < splitSize) {
@@ -197,11 +190,11 @@ private:
 
             int index = (partialHeader.sequence - 1) * (tcpHeader.payloadSize);
             std::string splitPayload = this->fuse(tcpHeader, this->fuse(partialHeader, payload, index));
-            this->transmitSingleSendable(target, tcpHeader, splitPayload);
+            this->transmitSingleSendable(targetFD, tcpHeader, splitPayload);
 
             //post process
             partialHeader.sequence++;
-            remainingPayloadSize = -splitSize;
+            remainingPayloadSize -= splitSize;
         }
     }
 
