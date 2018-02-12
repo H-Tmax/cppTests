@@ -19,7 +19,7 @@
  */
 
 //same with typedef unsigned char byte;
-using byte = unsigned char;
+using byte = char;
 
 struct TCPHeader {
     int sendableType;

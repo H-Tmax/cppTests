@@ -45,7 +45,7 @@ public:
         //WHEN IT IS A SINGLE SENDABLE
 
         //New buffer for the payload
-        payloadBuffer = new unsigned char[payloadSize];
+        payloadBuffer = new char[payloadSize];
 
         //Read the payload
         read(this->pipe.getReadFd(), payloadBuffer, payloadSize);
