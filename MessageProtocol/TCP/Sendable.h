@@ -1,5 +1,3 @@
-#ifndef MESSAGEPROTOCOL_SENDABLE_H
-#define MESSAGEPROTOCOL_SENDABLE_H
 /**
  * @file Sendable.h
  * @author hspark
@@ -10,6 +8,9 @@
  * Any class that inherits the Sendable class can use "tb_sendto" function to send itself to another
  * class that inherits Recievable class.
  */
+
+#ifndef MESSAGEPROTOCOL_SENDABLE_H
+#define MESSAGEPROTOCOL_SENDABLE_H
 
 #include "TCP.h"
 
@@ -25,6 +26,9 @@
  */
 template<class DerivedSendable>
 class Sendable : public Serializable<DerivedSendable> {
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////PUBLIC API//////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 public:
     /**
      * The only public method of Sendable class.
@@ -50,7 +54,9 @@ public:
      */
     virtual int getSendableType() = 0;
 
-
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////PRIVATE HELPER METHODS///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 private:
     /**
      * initializeHeader function for TCP header.
@@ -76,12 +82,13 @@ private:
     }
 
     /**
-     * TODO: THIS METHOD AND TRANSMITSINGLESENDABLE, TRANSMITSPLITSENDABLE HAVE A CHNACE TO BE
-     * UNITED AS A HOLY TRINITY SHIT.
-     * @tparam Recipient
-     * @param target
-     * @param header
-     * @param payload
+     * Refactored transmitSendable class which decides which transmitSendable function
+     * "this" sendable object should follow through.
+     *
+     * @tparam Recipient Any class that inherits Receivable
+     * @param target Any receivable object
+     * @param header TCPHeader that needs to be used for every Sendable object
+     * @param payload serialized payload
      */
     template<typename Recipient>
     void transmitSendable(Recipient target, TCPHeader header, std::string payload) {
@@ -96,10 +103,11 @@ private:
     }
 
     /**
-     * TODO: WHAT I STATED ABOVE
-     * @param target
-     * @param header
-     * @param payload
+     * A function that actually transmits a sendable object which does not require splitting.
+     *
+     * @param targetFD Receiver's write FD
+     * @param header The same header given from transmitSendable
+     * @param payload The same payload given from transmitSendable
      */
     void transmitSingleSendable(int targetFD, TCPHeader header, std::string payload) {
 
@@ -161,12 +169,11 @@ private:
     }
 
     /**
-     * TODO: I AM LIKE 70% SURE THIS FUNCTION CAN BE REFACTORED MORE, OR COMBINED WITH
-     * TRANSMITSINGLESENDABLE SOMEHOW. SOMEHOW...
+     * A function that actually transmits a split sendable object
      *
-     * @param target
-     * @param tcpHeader
-     * @param payload
+     * @param targetFD Receiver's write FD
+     * @param header The same header given from transmitSendable
+     * @param payload The same payload given from transmitSendable
      */
     void transmitSplitSendable(int targetFD, TCPHeader tcpHeader, std::string payload) {
 
@@ -188,42 +195,19 @@ private:
                 tcpHeader.payloadSize = remainingPayloadSize;
             }
 
+            //The index is used to mark the point from which the payload should be read per each iteration
             int index = (partialHeader.sequence - 1) * (tcpHeader.payloadSize);
+
+            //Amalgamate the payload with the partial header first, then attach it to the preset TCPHeader.
             std::string splitPayload = this->fuse(tcpHeader, this->fuse(partialHeader, payload, index));
+
+            //Send the combined result as if it is a single sendable.
             this->transmitSingleSendable(targetFD, tcpHeader, splitPayload);
 
             //post process
             partialHeader.sequence++;
             remainingPayloadSize -= splitSize;
         }
-    }
-
-    /**
-     * Function that creates a unique ID based on the time that sendto function is called, and
-     * the pointer address of "this" object.
-     *
-     * This method, however, does not perfectly guarantee the uniqueness of the ID.
-     * It provides statistically "safe enough" number for an optimal performance (I hope)
-     *
-     * Should consider adding a couple more random "spices," or even changing the mechanism into
-     * an entirely new unique ID dispensing system.
-     *
-     * @return unique long int value
-     */
-    long int makeUniqueID() {
-        //To get a random value based on time
-        std::srand(std::time(nullptr));
-
-        //Get two random values to be used as salts
-        int salt = std::rand();
-        int pepper = std::rand();
-        uint64_t pointerAddress = reinterpret_cast<uint64_t>(this);
-
-        //Setup the hash function to be used for the type (long int)
-        std::hash<long int> hash;
-
-        //Sprinkle some spices, then brutally hash it away
-        return hash(pointerAddress + salt + pepper);
     }
 
     /**
@@ -258,6 +242,34 @@ private:
         } else {
             partial.totalCount = (payloadSize / splitSize);
         }
+    }
+
+    /**
+     * Function that creates a unique ID based on the time that sendto function is called, and
+     * the pointer address of "this" object.
+     *
+     * This method, however, does not perfectly guarantee the uniqueness of the ID.
+     * It provides statistically "safe enough" number for an optimal performance (I hope)
+     *
+     * Should consider adding a couple more random "spices," or even changing the mechanism into
+     * an entirely new unique ID dispensing system.
+     *
+     * @return unique long int value
+     */
+    long int makeUniqueID() {
+        //To get a random value based on time
+        std::srand(std::time(nullptr));
+
+        //Get two random values to be used as salts
+        int salt = std::rand();
+        int pepper = std::rand();
+        uint64_t pointerAddress = reinterpret_cast<uint64_t>(this);
+
+        //Setup the hash function to be used for the type (long int)
+        std::hash<long int> hash;
+
+        //Sprinkle some spices, then brutally hash it away
+        return hash(pointerAddress + salt + pepper);
     }
 };
 
