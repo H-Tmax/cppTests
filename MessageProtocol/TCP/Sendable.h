@@ -15,7 +15,7 @@
 #include "TCP.h"
 
 /**
- * Sendable class which utilizes Curiously Recurring Template Pattern (CRPT) to get the "this" object
+ * Sendable class which utilizes Curiously Recurring Template Pattern (CRTP) to get the "this" object
  * of the derived class instead of itself.
  *
  * It has only one public function, which is basically "I am transmitting myself to someone" function.
