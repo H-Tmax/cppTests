@@ -1,0 +1,73 @@
+\hypertarget{classSendable}{\section{Sendable$<$ Derived\-Sendable $>$ Class Template Reference}
+\label{classSendable}\index{Sendable$<$ Derived\-Sendable $>$@{Sendable$<$ Derived\-Sendable $>$}}
+}
+
+
+{\ttfamily \#include $<$Sendable.\-h$>$}
+
+Inheritance diagram for Sendable$<$ Derived\-Sendable $>$\-:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classSendable}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename Recipient $>$ }\\void \hyperlink{classSendable_acd9845338560f7c51e5e6e57d282c127}{tb\-\_\-sendto} (Recipient receiver)
+\item 
+virtual int \hyperlink{classSendable_a8d13bbd5c89dc4dc2da25e8f344c550e}{get\-Sendable\-Type} ()=0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\subsubsection*{template$<$class Derived\-Sendable$>$class Sendable$<$ Derived\-Sendable $>$}
+
+\hyperlink{classSendable}{Sendable} class which utilizes Curiously Recurring Template Pattern (C\-R\-T\-P) to get the \char`\"{}this\char`\"{} object of the derived class instead of itself.
+
+It has only one public function, which is basically \char`\"{}\-I am transmitting myself to someone\char`\"{} function.
+
+This class inherits \hyperlink{classSerializable}{Serializable} class which directly implements B\-O\-O\-S\-T\-::serialize library.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Derived\-Sendable} & derived class that inherits this \hyperlink{classSendable}{Sendable} class. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classSendable_a8d13bbd5c89dc4dc2da25e8f344c550e}{\index{Sendable@{Sendable}!get\-Sendable\-Type@{get\-Sendable\-Type}}
+\index{get\-Sendable\-Type@{get\-Sendable\-Type}!Sendable@{Sendable}}
+\subsubsection[{get\-Sendable\-Type}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class Derived\-Sendable $>$ virtual int {\bf Sendable}$<$ Derived\-Sendable $>$\-::get\-Sendable\-Type (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [pure virtual]}}}\label{classSendable_a8d13bbd5c89dc4dc2da25e8f344c550e}
+pure virtual method that N\-E\-E\-D\-S T\-O B\-E O\-V\-E\-R\-R\-I\-D\-E\-N \begin{DoxyReturn}{Returns}
+type of the \hyperlink{classSendable}{Sendable} based on Enum (T\-C\-P\-\_\-\-T\-Y\-P\-E\-\_\-\-L\-I\-S\-T) 
+\end{DoxyReturn}
+\hypertarget{classSendable_acd9845338560f7c51e5e6e57d282c127}{\index{Sendable@{Sendable}!tb\-\_\-sendto@{tb\-\_\-sendto}}
+\index{tb\-\_\-sendto@{tb\-\_\-sendto}!Sendable@{Sendable}}
+\subsubsection[{tb\-\_\-sendto}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class Derived\-Sendable $>$ template$<$typename Recipient $>$ void {\bf Sendable}$<$ Derived\-Sendable $>$\-::tb\-\_\-sendto (
+\begin{DoxyParamCaption}
+\item[{Recipient}]{receiver}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{classSendable_acd9845338560f7c51e5e6e57d282c127}
+The only public method of \hyperlink{classSendable}{Sendable} class.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Recipient} & Any class that inherits \hyperlink{classReceivable}{Receivable} class. \\
+\hline
+\end{DoxyTemplParams}
+
+\begin{DoxyParams}{Parameters}
+{\em receiver} & any \hyperlink{classReceivable}{Receivable} object \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+/home/hspark/\-Dev\-Works/\-H-\/\-Tmax/cpp\-Tests/\-Message\-Protocol/\-T\-C\-P/\hyperlink{Sendable_8h}{Sendable.\-h}\end{DoxyCompactItemize}

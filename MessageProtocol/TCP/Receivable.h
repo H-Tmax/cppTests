@@ -6,92 +6,90 @@
 #include "TCP.h"
 #include "Pipe.h"
 
-class Receivable{
+class Receivable {
 public:
-    Receivable() : pipe() {
-        //NOTHING TO SEE HERE
-    }
-
-    virtual ~Receivable() {
-        while(!receivedRawSendables.empty()) {
-            delete[] receivedRawSendables.front()->serializedPayload;
-            receivedRawSendables.pop_front();
-        }
-
-    }
 
     void tb_recv() {
-
         ///////////////////////////////////////////////
         ////////////////PRE PROCESSING/////////////////
         ///////////////////////////////////////////////
         byte headerBuffer[sizeof(TCPHeader)];
-        byte* payloadBuffer;
+        byte *payloadBuffer;
+        TCPHeader *tempHeader;
 
         //Read header first
         read(this->pipe.getReadFd(), headerBuffer, sizeof(TCPHeader));
 
-        //Get the payload size from the header
-        int payloadSize = ((TCPHeader *) headerBuffer)->payloadSize;
-
+        //Temporarily store the header
+        tempHeader = ((TCPHeader *) headerBuffer);
 
         //Get the payload type from the header
-        int payloadType = ((TCPHeader *) headerBuffer)->sendableType;
+        int sendableType = tempHeader->sendableType;
 
-        bool isBigSendable = ((TCPHeader *) headerBuffer)->payloadSplit;
+        //Get the payload size from the header
+        int payloadSize = tempHeader->payloadSize;
 
-        RawSendable *sashimi = new RawSendable();
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-
-
-        ///////////////////////////////////////////////////////
-        //if (isBigSendable) -> handle big message
-
-
-        ///////////////////////////////////////////////////////
-        //WHEN IT IS A SINGLE SENDABLE
+        //Check if the Sendable is split
+        bool isSplit = tempHeader->payloadSplit;
 
         //New buffer for the payload
         payloadBuffer = new char[payloadSize];
 
-        //Read the payload
-        read(this->pipe.getReadFd(), payloadBuffer, payloadSize);
+        //Make an empty Raw Sendable
+        RawSendable *sashimi = new RawSendable();
 
-        sashimi->sendableID = payloadType;
-        sashimi->size = payloadSize;
-        sashimi->serializedPayload = payloadBuffer;
+        ///////////////////////////////////////////////
+        /////////////PROCESSING SENDABLE///////////////
+        ///////////////////////////////////////////////
+        if (!isSplit) {
+            //If it is a single sendable, simply read the payload, then populate the raw sendable, then push it
+            read(this->getReadingEnd(), payloadBuffer, payloadSize);
+
+            sashimi->sendableID = sendableType;
+            sashimi->size = payloadSize;
+            sashimi->serializedPayload = payloadBuffer;
+
+            this->receivedRawSendables.push_back(sashimi);
+        } else {
+            //this is the fun part
+        }
 
 
-
-        this->receivedRawSendables.push_back(sashimi);
 
 //        TODO: THIS CAUSES RECEIVED SENDABLE BROKEN VAL, WHEN TO FREE THEN?
 //        PROBABLY AFTER ALL SASHIMI'S HAVE BEEN COLLECTED INTO A RAWSENDABLE
 //        delete[] payloadBuffer;
     }
 
-    RawSendable* getRawSendable() {
-        RawSendable* rs = this->receivedRawSendables.front();
+    RawSendable *getRawSendable() {
+        RawSendable *rs = this->receivedRawSendables.front();
         this->receivedRawSendables.pop_front();
         return rs;
     }
 
-    int getReadingEnd(){
+    int getReadingEnd() {
         return this->pipe.getReadFd();
     }
 
-    int getWritingEnd(){
+    int getWritingEnd() {
         return this->pipe.getWriteFd();
+    }
+
+    Receivable() : pipe() {
+        //NOTHING TO SEE HERE
+    }
+
+    virtual ~Receivable() {
+        while (!receivedRawSendables.empty()) {
+            delete[] receivedRawSendables.front()->serializedPayload;
+            receivedRawSendables.pop_front();
+        }
     }
 
 private:
     Pipe pipe;
-    std::deque<RawSendable*> receivedRawSendables;
+    std::deque<RawSendable *> receivedRawSendables;
     std::map<long int, std::deque<byte *>> splitSendableMap;
-
-
 };
 
 #endif //MESSAGEPROTOCOL_RECEIVABLE_H

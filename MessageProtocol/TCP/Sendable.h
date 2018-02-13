@@ -82,6 +82,40 @@ private:
     }
 
     /**
+     * Overloaded initializeHeader function for partial header.
+     *
+     * @param payload serialized payload in the form of a std::string
+     * @param splitSize size that the payload should be split per splitSendable
+     * @return populated PartialHeader object
+     */
+    PartialHeader initializeHeader(std::string payload, int splitSize) {
+        PartialHeader partial;
+
+        //Get a unique ID, then set the sequence number as 1
+        partial.ID = this->makeUniqueID();
+        partial.sequence = 1;
+
+        int payloadSize = payload.length();
+
+        /*
+         * The last splitSendable's payload will be the remainder of the
+         * (total payload size / payload size that can be sent per each split sendable)
+         */
+        int lastPayloadSize = payloadSize % splitSize;
+
+        /*
+         * If there is going to be a remainder, final split sendable should be created and sent
+         * to take care of the remainder. If the payload can be split evenly into the multiples of a
+         * split size, no need to send another sendable.
+         */
+        if (lastPayloadSize) {
+            partial.totalCount = (payloadSize / splitSize) + 1;
+        } else {
+            partial.totalCount = (payloadSize / splitSize);
+        }
+    }
+
+    /**
      * Refactored transmitSendable class which decides which transmitSendable function
      * "this" sendable object should follow through.
      *
@@ -119,6 +153,48 @@ private:
 
         ///////////TODO: this causes SIGSEGV?; Check Valgrind for a possible leak
         //delete reinterpret_cast<const char*>(finalPayload, finalPayloadSize);
+    }
+
+    /**
+     * A function that actually transmits a split sendable object
+     *
+     * @param targetFD Receiver's write FD
+     * @param header The same header given from transmitSendable
+     * @param payload The same payload given from transmitSendable
+     */
+    void transmitSplitSendable(int targetFD, TCPHeader tcpHeader, std::string payload) {
+
+        //Temporarily store total payload size since header will be updated
+        int remainingPayloadSize = tcpHeader.payloadSize;
+
+        //Size of the payload that will be split per raw Sendable
+        const int splitSize = (PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader));
+
+        //TCPHeader is already set, only needs to update the size of the payload
+        tcpHeader.payloadSize = splitSize;
+
+        PartialHeader partialHeader;
+        partialHeader = initializeHeader(payload, splitSize);
+
+        while (remainingPayloadSize > 0) {
+            //Change the payload size ONLY for the last raw Sendable
+            if (tcpHeader.payloadSize < splitSize) {
+                tcpHeader.payloadSize = remainingPayloadSize;
+            }
+
+            //The index is used to mark the point from which the payload should be read per each iteration
+            int index = (partialHeader.sequence - 1) * (tcpHeader.payloadSize);
+
+            //Amalgamate the payload with the partial header first, then attach it to the preset TCPHeader.
+            std::string splitPayload = this->fuse(tcpHeader, this->fuse(partialHeader, payload, index));
+
+            //Send the combined result as if it is a single sendable.
+            this->transmitSingleSendable(targetFD, tcpHeader, splitPayload);
+
+            //post process
+            partialHeader.sequence++;
+            remainingPayloadSize -= splitSize;
+        }
     }
 
     /**
@@ -166,82 +242,6 @@ private:
         memcpy(finalPayload + headerSize, payload.c_str() + payloadBeginIndex, payloadSize);
 
         return std::string(reinterpret_cast<const char *>(finalPayload), finalPayloadSize);
-    }
-
-    /**
-     * A function that actually transmits a split sendable object
-     *
-     * @param targetFD Receiver's write FD
-     * @param header The same header given from transmitSendable
-     * @param payload The same payload given from transmitSendable
-     */
-    void transmitSplitSendable(int targetFD, TCPHeader tcpHeader, std::string payload) {
-
-        //Temporarily store total payload size since header will be updated
-        int remainingPayloadSize = tcpHeader.payloadSize;
-
-        //Size of the payload that will be split per raw Sendable
-        const int splitSize = (PIPE_BUF - sizeof(TCPHeader) - sizeof(PartialHeader));
-
-        //TCPHeader is already set, only needs to update the size of the payload
-        tcpHeader.payloadSize = splitSize;
-
-        PartialHeader partialHeader;
-        partialHeader = initializeHeader(payload, splitSize);
-
-        while (remainingPayloadSize > 0) {
-            //Change the payload size ONLY for the last raw Sendable
-            if (tcpHeader.payloadSize < splitSize) {
-                tcpHeader.payloadSize = remainingPayloadSize;
-            }
-
-            //The index is used to mark the point from which the payload should be read per each iteration
-            int index = (partialHeader.sequence - 1) * (tcpHeader.payloadSize);
-
-            //Amalgamate the payload with the partial header first, then attach it to the preset TCPHeader.
-            std::string splitPayload = this->fuse(tcpHeader, this->fuse(partialHeader, payload, index));
-
-            //Send the combined result as if it is a single sendable.
-            this->transmitSingleSendable(targetFD, tcpHeader, splitPayload);
-
-            //post process
-            partialHeader.sequence++;
-            remainingPayloadSize -= splitSize;
-        }
-    }
-
-    /**
-     * Overloaded initializeHeader function for partial header.
-     *
-     * @param payload serialized payload in the form of a std::string
-     * @param splitSize size that the payload should be split per splitSendable
-     * @return populated PartialHeader object
-     */
-    PartialHeader initializeHeader(std::string payload, int splitSize) {
-        PartialHeader partial;
-
-        //Get a unique ID, then set the sequence number as 1
-        partial.ID = this->makeUniqueID();
-        partial.sequence = 1;
-
-        int payloadSize = payload.length();
-
-        /*
-         * The last splitSendable's payload will be the remainder of the
-         * (total payload size / payload size that can be sent per each split sendable)
-         */
-        int lastPayloadSize = payloadSize % splitSize;
-
-        /*
-         * If there is going to be a remainder, final split sendable should be created and sent
-         * to take care of the remainder. If the payload can be split evenly into the multiples of a
-         * split size, no need to send another sendable.
-         */
-        if (lastPayloadSize) {
-            partial.totalCount = (payloadSize / splitSize) + 1;
-        } else {
-            partial.totalCount = (payloadSize / splitSize);
-        }
     }
 
     /**

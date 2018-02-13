@@ -1,0 +1,55 @@
+\hypertarget{classSerializable}{\section{Serializable$<$ Derived\-Serializable $>$ Class Template Reference}
+\label{classSerializable}\index{Serializable$<$ Derived\-Serializable $>$@{Serializable$<$ Derived\-Serializable $>$}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\-::string \hyperlink{classSerializable_a59ea122ccd8fc4c7d72d9a7e57a2ea0a}{marshal} ()
+\item 
+void \hyperlink{classSerializable_a802e37fd701dc56319d464a9ecc5fe07}{unmarshal} (std\-::string serialized)
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classSerializable_ac98d07dd8f7b70e16ccb9a01abf56b9c}{boost\-::serialization\-::access}
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{classSerializable_a59ea122ccd8fc4c7d72d9a7e57a2ea0a}{\index{Serializable@{Serializable}!marshal@{marshal}}
+\index{marshal@{marshal}!Serializable@{Serializable}}
+\subsubsection[{marshal}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class Derived\-Serializable$>$ std\-::string {\bf Serializable}$<$ Derived\-Serializable $>$\-::marshal (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{classSerializable_a59ea122ccd8fc4c7d72d9a7e57a2ea0a}
+Calling this-\/$>$marshal will serialize the object, then returns it in a string (byte $\ast$)
+
+\begin{DoxyReturn}{Returns}
+serialized \char`\"{}this\char`\"{} object in a form of a std\-::string 
+\end{DoxyReturn}
+\hypertarget{classSerializable_a802e37fd701dc56319d464a9ecc5fe07}{\index{Serializable@{Serializable}!unmarshal@{unmarshal}}
+\index{unmarshal@{unmarshal}!Serializable@{Serializable}}
+\subsubsection[{unmarshal}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class Derived\-Serializable$>$ void {\bf Serializable}$<$ Derived\-Serializable $>$\-::unmarshal (
+\begin{DoxyParamCaption}
+\item[{std\-::string}]{serialized}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily [inline]}}}\label{classSerializable_a802e37fd701dc56319d464a9ecc5fe07}
+this-\/$>$unmarshl will deserilize the string input (byte $\ast$) and populate the \char`\"{}this\char`\"{} object
+
+
+\begin{DoxyParams}{Parameters}
+{\em serialized} & serialized \char`\"{}this\char`\"{} object in a form of a std\-::string \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Friends And Related Function Documentation}
+\hypertarget{classSerializable_ac98d07dd8f7b70e16ccb9a01abf56b9c}{\index{Serializable@{Serializable}!boost\-::serialization\-::access@{boost\-::serialization\-::access}}
+\index{boost\-::serialization\-::access@{boost\-::serialization\-::access}!Serializable@{Serializable}}
+\subsubsection[{boost\-::serialization\-::access}]{\setlength{\rightskip}{0pt plus 5cm}template$<$class Derived\-Serializable$>$ friend class boost\-::serialization\-::access\hspace{0.3cm}{\ttfamily [friend]}}}\label{classSerializable_ac98d07dd8f7b70e16ccb9a01abf56b9c}
+B\-O\-O\-S\-T R\-E\-Q\-U\-I\-R\-E\-D V\-A\-R\-I\-A\-B\-L\-E 
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+/home/hspark/\-Dev\-Works/\-H-\/\-Tmax/cpp\-Tests/\-Message\-Protocol/\-T\-C\-P/\hyperlink{Serializable_8h}{Serializable.\-h}\end{DoxyCompactItemize}
