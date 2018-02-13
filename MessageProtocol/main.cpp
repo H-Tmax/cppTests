@@ -20,8 +20,8 @@ TEST(TCP, testSendRecv) {
     receiver->tb_recv();
 
     //DESERIALIZE TEST CODE
-    std::shared_ptr<RawSendable> whichSashimi(receiver->receivedRawSendables.top());
-    receiver->receivedRawSendables.pop();
+    RawSendable *whichSashimi = receiver->getRawSendable();
+
 
     DummySendable received;
     std::string byteArray((char *)whichSashimi->serializedPayload, whichSashimi->size);

@@ -93,7 +93,7 @@ private:
     template<typename Recipient>
     void transmitSendable(Recipient target, TCPHeader header, std::string payload) {
 
-        int targetFD = target->pipe.getWriteFd();
+        int targetFD = target->getWritingEnd();
 
         if (header.payloadSplit) {
             this->transmitSplitSendable(targetFD, header, payload);

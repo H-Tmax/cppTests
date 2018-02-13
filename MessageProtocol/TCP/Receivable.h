@@ -1,7 +1,8 @@
 #ifndef MESSAGEPROTOCOL_RECEIVABLE_H
 #define MESSAGEPROTOCOL_RECEIVABLE_H
 
-#include <stack>
+#include <deque>
+#include <map>
 #include "TCP.h"
 #include "Pipe.h"
 
@@ -13,29 +14,37 @@ public:
 
     virtual ~Receivable() {
         while(!receivedRawSendables.empty()) {
-            delete[] receivedRawSendables.top()->serializedPayload;
-            receivedRawSendables.pop();
+            delete[] receivedRawSendables.front()->serializedPayload;
+            receivedRawSendables.pop_front();
         }
-        delete[] payloadBuffer;
+
     }
 
     void tb_recv() {
-        //Initialize buffer in case it still has old buffer values
-        this->initializeBuffers();
+
+        ///////////////////////////////////////////////
+        ////////////////PRE PROCESSING/////////////////
+        ///////////////////////////////////////////////
+        byte headerBuffer[sizeof(TCPHeader)];
+        byte* payloadBuffer;
 
         //Read header first
         read(this->pipe.getReadFd(), headerBuffer, sizeof(TCPHeader));
 
         //Get the payload size from the header
-        int payloadSize = ((TCPHeader *) this->headerBuffer)->payloadSize;
+        int payloadSize = ((TCPHeader *) headerBuffer)->payloadSize;
 
 
         //Get the payload type from the header
-        int payloadType = ((TCPHeader *) this->headerBuffer)->sendableType;
+        int payloadType = ((TCPHeader *) headerBuffer)->sendableType;
 
-        bool isBigSendable = ((TCPHeader *) this->headerBuffer)->payloadSplit;
+        bool isBigSendable = ((TCPHeader *) headerBuffer)->payloadSplit;
 
-        std::shared_ptr<RawSendable> sashimi(new RawSendable());
+        RawSendable *sashimi = new RawSendable();
+        ////////////////////////////////////////////////
+        ////////////////////////////////////////////////
+        ////////////////////////////////////////////////
+
 
         ///////////////////////////////////////////////////////
         //if (isBigSendable) -> handle big message
@@ -56,21 +65,31 @@ public:
 
 
 
-        this->receivedRawSendables.push(sashimi);
+        this->receivedRawSendables.push_back(sashimi);
+
+//        TODO: THIS CAUSES RECEIVED SENDABLE BROKEN VAL, WHEN TO FREE THEN?
+//        PROBABLY AFTER ALL SASHIMI'S HAVE BEEN COLLECTED INTO A RAWSENDABLE
 //        delete[] payloadBuffer;
     }
 
-    void initializeBuffers() {
-        memset(&headerBuffer, 0, sizeof(TCPHeader));
-        //TODO: DELETE HERE?
-        //delete this->payloadBuffer;
+    RawSendable* getRawSendable() {
+        RawSendable* rs = this->receivedRawSendables.front();
+        this->receivedRawSendables.pop_front();
+        return rs;
     }
 
-    Pipe pipe;
-    byte headerBuffer[sizeof(TCPHeader)];
-    byte* payloadBuffer;
+    int getReadingEnd(){
+        return this->pipe.getReadFd();
+    }
 
-    std::stack<std::shared_ptr<RawSendable>> receivedRawSendables;
+    int getWritingEnd(){
+        return this->pipe.getWriteFd();
+    }
+
+private:
+    Pipe pipe;
+    std::deque<RawSendable*> receivedRawSendables;
+    std::map<long int, std::deque<byte *>> splitSendableMap;
 
 
 };
