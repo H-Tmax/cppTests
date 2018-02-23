@@ -13,7 +13,7 @@
 
 class Spinlock {
 private:
-    int lockval; /* 1 == unlocked */
+    unsigned int lockval; /* 0 == unlocked & available */
     std::mutex mtx; /* protecting lockval */
     std::condition_variable cd;
 
@@ -29,7 +29,7 @@ private:
 
 public:
     Spinlock(int type, int id1, int id2) :
-            lockval(1),
+            lockval(0),
             spinlockType(type),
             id1(id1),
             id2(id2),
@@ -38,7 +38,7 @@ public:
             LOCK_ACQ_TRIAL_BEFORE_WAIT(10) {}
 
     Spinlock(int type, int id1) :
-            lockval(1),
+            lockval(0),
             spinlockType(type),
             id1(id1),
             id2(0),
@@ -47,7 +47,7 @@ public:
             LOCK_ACQ_TRIAL_BEFORE_WAIT(10) {}
 
     Spinlock(int type) :
-            lockval(1),
+            lockval(0),
             spinlockType(type),
             id1(0),
             id2(0),
@@ -57,19 +57,19 @@ public:
 
     void lock_busy() {
         mtx.lock();
-        while (lockval != 1) {
+        while (lockval != 0) {
             mtx.unlock();
             std::this_thread::sleep_for(LOCK_ACQ_RETRY_INTERVAL);
             mtx.lock();
         }
-        lockval--;
+        lockval++;
         mtx.unlock();
     }
 
     bool lock_try() {
         mtx.lock();
-        if (lockval == 1) {
-            lockval--;
+        if (lockval == 0) {
+            lockval++;
             mtx.unlock();
             return true;
         } else {
@@ -81,29 +81,32 @@ public:
     void lock_wait() {
         for (int i = 1; i < LOCK_ACQ_TRIAL_BEFORE_WAIT; i++) {
             mtx.lock();
-            if (lockval != 1) {
+            if (lockval != 0) {
                 mtx.unlock();
                 std::this_thread::sleep_for(LOCK_ACQ_RETRY_INTERVAL);
                 continue;
             } else {
                 /* LOCK ACQUIRED*/
-                lockval--;
+                lockval++;
                 mtx.unlock();
                 return;
             }
         }
         /* FAILED TO ACQUIRE THE LOCK */
         std::unique_lock<std::mutex> ul(mtx);
-        while (lockval != 1) {
+        while (lockval != 0) {
             cd.wait_for(ul, WAIT_TIMEOUT);
         }
-        lockval--;
+        lockval++;
         return;
     }
 
     void unlock() {
         std::unique_lock<std::mutex> ul(mtx);
-        lockval++;
+        if (lockval < 1) {
+            //TODO: assert or throw a critical error
+        }
+        lockval--;
         ul.unlock();
         cd.notify_all();
     }
