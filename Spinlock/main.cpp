@@ -32,12 +32,12 @@ TEST(LOCK, noLockTest) {
     thr5.join();
 }
 
-Spinlock spinlock;
+Spinlock spinlock(1, 1, 1);
 
 void job_with_lock(int n, char c) {
 
 
-    spinlock.sleep_lock();
+    spinlock.lock_wait();
 
     for (int i = 0; i < n; ++i) {
         std::cout << c;

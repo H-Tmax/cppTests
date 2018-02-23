@@ -9,21 +9,57 @@
 #include <mutex>
 #include <condition_variable>
 #include <unistd.h>
+#include <chrono>
 
 class Spinlock {
 private:
-    int lockval; // 1 unlocked
-    std::mutex mtx;
+    int lockval; /* 1 == unlocked */
+    std::mutex mtx; /* protecting lockval */
     std::condition_variable cd;
 
+    /* SPINLOCK IDENTIFICATION INFORMATION */
+    int spinlockType;
+    int id1;
+    int id2;
+
+    /* TUNING PARAMETERS */
+    std::chrono::microseconds LOCK_ACQ_RETRY_INTERVAL;
+    std::chrono::microseconds WAIT_TIMEOUT;
+    unsigned int LOCK_ACQ_TRIAL_BEFORE_WAIT;
+
 public:
-    Spinlock() : lockval(1){}
+    Spinlock(int type, int id1, int id2) :
+            lockval(1),
+            spinlockType(type),
+            id1(id1),
+            id2(id2),
+            LOCK_ACQ_RETRY_INTERVAL(10),
+            WAIT_TIMEOUT(10),
+            LOCK_ACQ_TRIAL_BEFORE_WAIT(10) {}
+
+    Spinlock(int type, int id1) :
+            lockval(1),
+            spinlockType(type),
+            id1(id1),
+            id2(0),
+            LOCK_ACQ_RETRY_INTERVAL(10),
+            WAIT_TIMEOUT(10),
+            LOCK_ACQ_TRIAL_BEFORE_WAIT(10) {}
+
+    Spinlock(int type) :
+            lockval(1),
+            spinlockType(type),
+            id1(0),
+            id2(0),
+            LOCK_ACQ_RETRY_INTERVAL(10),
+            WAIT_TIMEOUT(10),
+            LOCK_ACQ_TRIAL_BEFORE_WAIT(10) {}
 
     void lock_busy() {
         mtx.lock();
         while (lockval != 1) {
             mtx.unlock();
-            usleep(1);
+            std::this_thread::sleep_for(LOCK_ACQ_RETRY_INTERVAL);
             mtx.lock();
         }
         lockval--;
@@ -31,27 +67,57 @@ public:
     }
 
     bool lock_try() {
-        return mtx.try_lock();
+        mtx.lock();
+        if (lockval == 1) {
+            lockval--;
+            mtx.unlock();
+            return true;
+        } else {
+            mtx.unlock();
+            return false;
+        }
     }
 
-    void sleep_lock() {
+    void lock_wait() {
+        for (int i = 1; i < LOCK_ACQ_TRIAL_BEFORE_WAIT; i++) {
+            mtx.lock();
+            if (lockval != 1) {
+                mtx.unlock();
+                std::this_thread::sleep_for(LOCK_ACQ_RETRY_INTERVAL);
+                continue;
+            } else {
+                /* LOCK ACQUIRED*/
+                lockval--;
+                mtx.unlock();
+                return;
+            }
+        }
+        /* FAILED TO ACQUIRE THE LOCK */
         std::unique_lock<std::mutex> ul(mtx);
         while (lockval != 1) {
-            cd.wait(ul);
+            cd.wait_for(ul, WAIT_TIMEOUT);
         }
         lockval--;
-    }
-
-    void lock_try_n(int n) {
-
+        return;
     }
 
     void unlock() {
-
         std::unique_lock<std::mutex> ul(mtx);
         lockval++;
         ul.unlock();
         cd.notify_all();
+    }
+
+    void setLockAcqInterval(unsigned int ms) {
+        this->LOCK_ACQ_RETRY_INTERVAL = std::chrono::microseconds(ms);
+    }
+
+    void setWaitTimeout(unsigned int ms) {
+        this->WAIT_TIMEOUT = std::chrono::microseconds(ms);
+    }
+
+    void setLockAcqTrial(unsigned int n) {
+        this->LOCK_ACQ_TRIAL_BEFORE_WAIT = n;
     }
 };
 

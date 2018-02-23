@@ -39,6 +39,9 @@ struct RawSendable{
     byte* serializedPayload;
 };
 
+using const int TRANSMISSION_SUCCESS = 0;
+
+
 
 #endif //MESSAGEPROTOCOL_TCP_H
 

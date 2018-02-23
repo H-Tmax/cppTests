@@ -35,7 +35,7 @@ public:
      * @param receiver any Receivable object
      */
     template<typename Recipient>
-    void tb_sendto(Recipient receiver) {
+    int tb_sendto(Recipient receiver) {
         std::string payload;
         TCPHeader tcpHeader;
 
@@ -44,7 +44,26 @@ public:
         tcpHeader = initializeHeader(payload);
 
         this->transmitSendable(receiver, tcpHeader, payload);
+        return TRANSMISSION_SUCCESS;
     }
+
+    ////////////////////////////////////////////////
+    /////////////////////TO_DO//////////////////////
+    ////////////////////////////////////////////////
+    template<typename Recipient>
+    int tb_sendto_nonblocking(Recipient receiver) {
+
+    }
+
+    template<typename Recipient>
+    int tb_sendto_async(Recipient receiver, std::function callback) {
+        //this->tb_sendto_async(receiver, callback);
+
+    }
+    ////////////////////////////////////////////////
+    /////////////////////TO_DO//////////////////////
+    ////////////////////////////////////////////////
+
 
     /**
      * pure virtual method that NEEDS TO BE OVERRIDEN
