@@ -5,10 +5,6 @@
 #ifndef MESSAGEPROTOCOL_TCP_H
 #define MESSAGEPROTOCOL_TCP_H
 
-#include <iostream>
-#include <cstring>
-#include <unistd.h>
-#include <typeindex>
 #include "TCP_TYPE_LIST.h"
 #include "Serializable.h"
 
@@ -35,12 +31,19 @@ struct PartialHeader {
 
 struct RawSendable{
     int sendableID;
-    int size;
-    byte* serializedPayload;
+    std::string serializedPayload;
 };
 
-using const int TRANSMISSION_SUCCESS = 0;
+struct LeftoverNonblock {
+    int exitCodeFromLastWrite;
+    int nextWriteAt;
+    TCPHeader header;
+    std::string serializedPayload;
+};
 
+enum TCP_RETURN_CODE {
+    TRANSMISSION_SUCCESS = 0,
+};
 
 
 #endif //MESSAGEPROTOCOL_TCP_H

@@ -9,6 +9,15 @@
 class Receivable {
 public:
 
+    void test_receive_for_nonblocking(){
+        byte * buffer;
+        //min size?
+        fcntl(this->pipe.getReadFd(), F_SETPIPE_SZ, 5);
+        //Any blocking write bigger than 1byte will cause a hang
+        read(this->pipe.getReadFd(), buffer, 1);
+
+    }
+
     void tb_recv() {
         ///////////////////////////////////////////////
         ////////////////PRE PROCESSING/////////////////
@@ -46,11 +55,11 @@ public:
             read(this->getReadingEnd(), payloadBuffer, payloadSize);
 
             sashimi->sendableID = sendableType;
-            sashimi->size = payloadSize;
-            sashimi->serializedPayload = payloadBuffer;
+            sashimi->serializedPayload = std::string(reinterpret_cast<const char *>(payloadBuffer), payloadSize);
 
             this->receivedRawSendables.push_back(sashimi);
         } else {
+            //TODO: receive split sendables
             //this is the fun part
         }
 
@@ -81,7 +90,8 @@ public:
 
     virtual ~Receivable() {
         while (!receivedRawSendables.empty()) {
-            delete[] receivedRawSendables.front()->serializedPayload;
+            //TODO: THIS CASUES TYPE ERROR, WHEN TO FREE THEN?
+            //delete receivedRawSendables.front()->serializedPayload;
             receivedRawSendables.pop_front();
         }
     }

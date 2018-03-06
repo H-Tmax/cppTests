@@ -13,6 +13,8 @@
 #define MESSAGEPROTOCOL_SENDABLE_H
 
 #include "TCP.h"
+#include <boost/asio.hpp>
+
 
 /**
  * Sendable class which utilizes Curiously Recurring Template Pattern (CRTP) to get the "this" object
@@ -47,19 +49,86 @@ public:
         return TRANSMISSION_SUCCESS;
     }
 
+    /**
+     *  #########################################################
+     *  #      !!!!!!!!!!!!!!!WARNING!!!!!!!!!!!!!!!            #
+     *  #  USING THIS FUNCTION MAY CAUSE DATA INTERLEAVING.     #
+     *  #  USE ONLY WHEN YOU KNOW WHAT YOU ARE DOING WITH IT.   #
+     *  #########################################################
+     * @tparam Recipient
+     * @param receiver
+     * @return
+     */
+    template<typename Recipient>
+    LeftoverNonblock tb_sendto_some(Recipient receiver) {
+        std::string payload;
+        TCPHeader tcpHeader;
+
+        //Serialize "this" object, which is a derived sendable object.
+        payload = this->marshal();
+        tcpHeader = initializeHeader(payload);
+        int targetFD = receiver->getWritingEnd();
+
+        boost::asio::io_context io_context;
+
+        const byte *finalPayload = (this->fuse(tcpHeader, payload)).c_str();
+
+        int finalPayloadSize = sizeof(TCPHeader) + payload.length();
+
+        boost::asio::posix::stream_descriptor fd(io_context, targetFD);
+
+        fd.non_blocking(true);
+
+        size_t sizeWritten;
+        sizeWritten = boost::asio::write(fd, boost::asio::buffer(finalPayload, finalPayloadSize));
+
+        LeftoverNonblock ln;
+        ln.exitCodeFromLastWrite = 0;
+        ln.serializedPayload = payload;
+        ln.header = tcpHeader;
+        ln.nextWriteAt = sizeWritten;
+        return ln;
+    }
+
+    /**
+     *  #########################################################
+     *  #      !!!!!!!!!!!!!!!WARNING!!!!!!!!!!!!!!!            #
+     *  #  USING THIS FUNCTION MAY CAUSE DATA INTERLEAVING.     #
+     *  #  USE ONLY WHEN YOU KNOW WHAT YOU ARE DOING WITH IT.   #
+     *  #########################################################
+     * @tparam Recipient
+     * @param receiver
+     * @param leftover
+     * @return
+     */
+    template<typename Recipient>
+    LeftoverNonblock tb_sendto_some(Recipient receiver, LeftoverNonblock leftover) {
+
+        int targetFD = receiver->getWritingEnd();
+
+        boost::asio::io_context io_context;
+        boost::asio::posix::stream_descriptor fd(io_context, targetFD);
+        fd.non_blocking(true);
+
+        int write_at = leftover.nextWriteAt;
+        size_t sizeWritten;
+        sizeWritten = boost::asio::write_at(fd, sizeWritten, boost::asio::buffer(leftover.serializedPayload,
+                                                                                 leftover.serializedPayload.length() -
+                                                                                 write_at));
+
+        leftover.nextWriteAt += sizeWritten;
+
+        return leftover;
+    }
+
     ////////////////////////////////////////////////
     /////////////////////TO_DO//////////////////////
     ////////////////////////////////////////////////
-    template<typename Recipient>
-    int tb_sendto_nonblocking(Recipient receiver) {
-
-    }
-
-    template<typename Recipient>
-    int tb_sendto_async(Recipient receiver, std::function callback) {
-        //this->tb_sendto_async(receiver, callback);
-
-    }
+//    template<typename Recipient>
+//    int tb_sendto_async(Recipient receiver, std::function callback) {
+//        //this->tb_sendto_async(receiver, callback);
+//
+//    }
     ////////////////////////////////////////////////
     /////////////////////TO_DO//////////////////////
     ////////////////////////////////////////////////
@@ -159,11 +228,16 @@ private:
      */
     void transmitSingleSendable(int targetFD, TCPHeader header, std::string payload) {
 
+        boost::asio::io_context io_context;
+
         const byte *finalPayload = (this->fuse(header, payload)).c_str();
 
         int finalPayloadSize = sizeof(TCPHeader) + payload.length();
 
-        write(targetFD, finalPayload, finalPayloadSize);
+        boost::asio::posix::stream_descriptor fd(io_context, targetFD);
+
+        boost::asio::write(fd, boost::asio::buffer(finalPayload, finalPayloadSize));
+
 
         ///////////TODO: this causes SIGSEGV?; Check Valgrind for a possible leak
         //delete reinterpret_cast<const char*>(finalPayload, finalPayloadSize);
@@ -285,6 +359,74 @@ private:
         //Sprinkle some spices, then brutally hash it away
         return hash(pointerAddress + salt + pepper);
     }
+};
+
+class QuickSendable {
+public:
+    QuickSendable(){}
+
+    template<typename inputType>
+    QuickSendable(inputType t) {
+        std::stringbuf buffer;
+        std::ostream os(&buffer);
+        boost::archive::binary_oarchive oar(os, boost::archive::no_header);
+        oar << t;
+        this->payload = buffer.str();
+        this->tcpHeader.sendableType = this->getSendableType(t);
+        this->tcpHeader.payloadSize = this->payload.length();
+        this->tcpHeader.payloadSplit = false;
+    }
+
+    template<typename Recipient>
+    int tb_sendto(Recipient receiver) {
+        int headerSize = sizeof(this->tcpHeader);
+        int payloadSize = this->tcpHeader.payloadSize;
+        int finalPayloadSize = headerSize + payloadSize;
+
+        byte *finalPayload = new char[finalPayloadSize];
+
+        memcpy(finalPayload, &this->tcpHeader, headerSize);
+        memcpy(finalPayload + headerSize, this->payload.c_str(), payloadSize);
+
+        boost::asio::io_context io_context;
+        //TODO: test constructing two stream descriptor on the same OPENED pipe fd -> check exception
+        //TODO: test constructing stream descriptor on a closed pipe fd -> check exception
+        boost::asio::posix::stream_descriptor fd(io_context, receiver->getWritingEnd());
+        boost::asio::write(fd, boost::asio::buffer(finalPayload, finalPayloadSize));
+
+        return TRANSMISSION_SUCCESS;
+    }
+
+    template<typename returnType>
+    returnType getVal(std::string serialized, returnType t){
+        std::stringbuf buffer;
+        buffer.sputn((char *) serialized.c_str(), serialized.length());
+        std::istream is(&buffer);
+        boost::archive::binary_iarchive iar(is, boost::archive::no_header);
+        iar >> t;
+        return t;
+    }
+
+private:
+    std::string payload;
+    TCPHeader tcpHeader;
+
+    int getSendableType(int i){
+        return TYPE_INT;
+    }
+
+    int getSendableType(double d){
+        return TYPE_DOUBLE;
+    }
+
+    int getSendableType(bool b){
+        return TYPE_BOOL;
+    }
+
+    int getSendableType(std::string s){
+        return TYPE_STRING;
+    }
+
 };
 
 #endif //MESSAGEPROTOCOL_SENDABLE_H

@@ -19,6 +19,11 @@ enum TCP_Types {
 
     //FOR C5'S USE ONLY
             TYPE_G = 4000,
+    //For QuickSendables
+    TYPE_INT = 10000,
+    TYPE_DOUBLE,
+    TYPE_BOOL,
+    TYPE_STRING,
 };
 #endif //MESSAGEPROTOCOL_SENDABLETYPEENUMLIST_H
 
