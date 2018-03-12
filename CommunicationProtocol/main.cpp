@@ -9,18 +9,18 @@
 
 
 TEST(TCP, testSendRecv) {
-    DummyReceivable *receiver = new DummyReceivable();
-    DummySendable *to_be_sent = new DummySendable();
+    std::unique_ptr<DummyReceivable> receiver(new DummyReceivable());
+    std::unique_ptr<DummySendable> to_be_sent(new DummySendable());
     //TODO:OVERFLOW HANDLING?
     to_be_sent->b = 999999999;
     to_be_sent->c = 7777777777777777777;
     to_be_sent->d = 3333333;
 
-    to_be_sent->tb_sendto(receiver);
+    to_be_sent->tb_sendto(*receiver.get());
     receiver->tb_recv();
 
     //DESERIALIZE TEST CODE
-    RawSendable *whichSashimi = receiver->getRawSendable();
+    std::unique_ptr<RawSendable> whichSashimi = receiver->getRawSendable();
 
 
     DummySendable received;
@@ -29,9 +29,6 @@ TEST(TCP, testSendRecv) {
     POL("\nreceived b: ", received.b);
     POL("received c: ", received.c);
     POL("received d: ", received.d);
-
-    delete to_be_sent;
-    delete receiver;
 }
 
 class DummySerializable : public Serializable<DummySerializable> {
@@ -68,14 +65,14 @@ TEST(TCP, testSerializeDeserialize) {
 
 //HOW DO I TEST THIS SHIT?
 TEST(TCP, testSendSome) {
-    DummyReceivable *receiver = new DummyReceivable();
-    DummySendable *to_be_sent = new DummySendable();
+    std::unique_ptr<DummyReceivable> receiver(new DummyReceivable());
+    std::unique_ptr<DummySendable> to_be_sent(new DummySendable());
 
     to_be_sent->b = 999999999;
     to_be_sent->c = 7777777777777777777;
     to_be_sent->d = 3333333;
 
-    LeftoverNonblock ln = to_be_sent->tb_sendto_some(receiver);
+    LeftoverNonblock ln = to_be_sent->tb_sendto_some(*receiver.get());
     //TEST:check if this func returns
 
     EXPECT_EQ(ln.exitCodeFromLastWrite, 0);
@@ -83,18 +80,17 @@ TEST(TCP, testSendSome) {
     //EXPECT_EQ();
 
     receiver->tb_recv();
-
 }
 
 TEST(TCP, testQuickSendable) {
-    DummyReceivable *receiver = new DummyReceivable();
+    std::unique_ptr<DummyReceivable> receiver(new DummyReceivable());
     QuickSendable qs1(1012);
     QuickSendable qs2(std::string("Hello"));
     QuickSendable qs3(3.141592);
     QuickSendable qs4(true);
 
-    qs1.tb_sendto(receiver);
-    qs2.tb_sendto(receiver);
+    qs1.tb_sendto(*receiver.get());
+//    qs2.tb_sendto(receiver);
 //    qs3.tb_sendto(receiver);
 //    qs4.tb_sendto(receiver);
 
@@ -106,7 +102,7 @@ TEST(TCP, testQuickSendable) {
 
     for (int j = 0; j < 4; j++) {
         receiver->tb_recv();
-        RawSendable *whichSashimi = receiver->getRawSendable();
+        std::unique_ptr<RawSendable> whichSashimi = receiver->getRawSendable();
 
         QuickSendable received;
 
