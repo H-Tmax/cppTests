@@ -22,7 +22,7 @@ public:
         ///////////////////////////////////////////////
         ////////////////PRE PROCESSING/////////////////
         ///////////////////////////////////////////////
-        byte headerBuffer[sizeof(TCPHeader)];
+        byte headerBuffer[sizeof(TCPHeader)] = {0};
         byte *payloadBuffer;
         TCPHeader *tempHeader;
 
@@ -45,7 +45,8 @@ public:
         payloadBuffer = new char[payloadSize];
 
         //Make an empty Raw Sendable
-        RawSendable *sashimi = new RawSendable();
+        std::unique_ptr<RawSendable> sashimi(new RawSendable());
+
 
         ///////////////////////////////////////////////
         /////////////PROCESSING SENDABLE///////////////
@@ -57,7 +58,7 @@ public:
             sashimi->sendableID = sendableType;
             sashimi->serializedPayload = std::string(reinterpret_cast<const char *>(payloadBuffer), payloadSize);
 
-            this->receivedRawSendables.push_back(sashimi);
+            this->receivedRawSendables.push_back(std::move(sashimi));
         } else {
             //TODO: receive split sendables
             //this is the fun part
@@ -67,20 +68,20 @@ public:
 
 //        TODO: THIS CAUSES RECEIVED SENDABLE BROKEN VAL, WHEN TO FREE THEN?
 //        PROBABLY AFTER ALL SASHIMI'S HAVE BEEN COLLECTED INTO A RAWSENDABLE
-//        delete[] payloadBuffer;
+        delete[] payloadBuffer;
     }
 
-    RawSendable *getRawSendable() {
-        RawSendable *rs = this->receivedRawSendables.front();
+    std::unique_ptr<RawSendable> getRawSendable() {
+        std::unique_ptr<RawSendable> res = std::move(this->receivedRawSendables.front());
         this->receivedRawSendables.pop_front();
-        return rs;
+        return res;
     }
 
-    int getReadingEnd() {
+    int getReadingEnd() const {
         return this->pipe.getReadFd();
     }
 
-    int getWritingEnd() {
+    int getWritingEnd() const {
         return this->pipe.getWriteFd();
     }
 
@@ -98,7 +99,7 @@ public:
 
 private:
     Pipe pipe;
-    std::deque<RawSendable *> receivedRawSendables;
+    std::deque<std::unique_ptr<RawSendable>> receivedRawSendables;
     std::map<long int, std::deque<byte *>> splitSendableMap;
 };
 

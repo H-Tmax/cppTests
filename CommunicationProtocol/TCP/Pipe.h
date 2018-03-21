@@ -13,11 +13,11 @@ public:
         this->writeFD = fd[1];
     }
 
-    int getReadFd(){
+    int getReadFd() const{
         return this->readFD;
     }
 
-    int getWriteFd(){
+    int getWriteFd() const {
         return this->writeFD;
     }
 

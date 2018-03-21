@@ -37,7 +37,7 @@ public:
      * @param receiver any Receivable object
      */
     template<typename Recipient>
-    int tb_sendto(Recipient receiver) {
+    int tb_sendto(const Recipient &receiver) {
         std::string payload;
         TCPHeader tcpHeader;
 
@@ -60,14 +60,14 @@ public:
      * @return
      */
     template<typename Recipient>
-    LeftoverNonblock tb_sendto_some(Recipient receiver) {
+    LeftoverNonblock tb_sendto_some(const Recipient &receiver) {
         std::string payload;
         TCPHeader tcpHeader;
 
         //Serialize "this" object, which is a derived sendable object.
         payload = this->marshal();
         tcpHeader = initializeHeader(payload);
-        int targetFD = receiver->getWritingEnd();
+        int targetFD = receiver.getWritingEnd();
 
         boost::asio::io_context io_context;
 
@@ -208,9 +208,9 @@ private:
      * @param payload serialized payload
      */
     template<typename Recipient>
-    void transmitSendable(Recipient target, TCPHeader header, std::string payload) {
+    void transmitSendable(const Recipient &target, TCPHeader header, std::string payload) {
 
-        int targetFD = target->getWritingEnd();
+        int targetFD = target.getWritingEnd();
 
         if (header.payloadSplit) {
             this->transmitSplitSendable(targetFD, header, payload);
@@ -230,17 +230,16 @@ private:
 
         boost::asio::io_context io_context;
 
-        const byte *finalPayload = (this->fuse(header, payload)).c_str();
+        std::string fuseResult(this->fuse(header, payload));
+
+        const byte *finalPayload = fuseResult.c_str();
 
         int finalPayloadSize = sizeof(TCPHeader) + payload.length();
 
         boost::asio::posix::stream_descriptor fd(io_context, targetFD);
 
         boost::asio::write(fd, boost::asio::buffer(finalPayload, finalPayloadSize));
-
-
-        ///////////TODO: this causes SIGSEGV?; Check Valgrind for a possible leak
-        //delete reinterpret_cast<const char*>(finalPayload, finalPayloadSize);
+        /* write(targetFD, finalPayload, finalPayloadSize);*/
     }
 
     /**
@@ -305,7 +304,9 @@ private:
 
         memcpy(finalPayload + headerSize, payload.c_str(), payloadSize);
 
-        return std::string(reinterpret_cast<const char *>(finalPayload), finalPayloadSize);
+        std::string result(reinterpret_cast<const char *>(finalPayload), finalPayloadSize);
+        delete[] finalPayload;
+        return result;
     }
 
     /**
@@ -378,7 +379,7 @@ public:
     }
 
     template<typename Recipient>
-    int tb_sendto(Recipient receiver) {
+    int tb_sendto(const Recipient &receiver) {
         int headerSize = sizeof(this->tcpHeader);
         int payloadSize = this->tcpHeader.payloadSize;
         int finalPayloadSize = headerSize + payloadSize;
@@ -391,9 +392,9 @@ public:
         boost::asio::io_context io_context;
         //TODO: test constructing two stream descriptor on the same OPENED pipe fd -> check exception
         //TODO: test constructing stream descriptor on a closed pipe fd -> check exception
-        boost::asio::posix::stream_descriptor fd(io_context, receiver->getWritingEnd());
+        boost::asio::posix::stream_descriptor fd(io_context, receiver.getWritingEnd());
         boost::asio::write(fd, boost::asio::buffer(finalPayload, finalPayloadSize));
-
+        delete[] finalPayload;
         return TRANSMISSION_SUCCESS;
     }
 

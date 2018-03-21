@@ -26,7 +26,8 @@ public:
 
     /**
      * Calling this->marshal will serialize the object, then returns it in a string (byte *)
-     *
+     * @brief result string from buffer.str() contains '\0' at the end (sometimes, i think)-
+     * probably because that is how Boost library works (I think, again?)
      * @return serialized "this" object in a form of a std::string
      */
     std::string marshal() {
