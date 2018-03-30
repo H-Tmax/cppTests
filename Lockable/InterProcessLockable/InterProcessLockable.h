@@ -20,7 +20,7 @@
 //typedef boost::condition_variable ConditionVariable;
 typedef boost::chrono::microseconds MicroSeconds;
 
-class IntraProcessLockable {
+class InterThreadLockable {
 public:
     volatile boost::uint32_t lockval; /* 0 == unlocked & available */
 

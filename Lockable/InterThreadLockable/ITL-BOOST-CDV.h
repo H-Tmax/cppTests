@@ -7,10 +7,6 @@
 
 #include <chrono>
 
-#include "boost/interprocess/detail/atomic.hpp"
-#include "boost/thread.hpp"
-#include "boost/atomic.hpp"
-
 typedef boost::mutex Mutex;
 typedef boost::condition_variable ConditionVariable;
 typedef boost::chrono::microseconds MicroSeconds;

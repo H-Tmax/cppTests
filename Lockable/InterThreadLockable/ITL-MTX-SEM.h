@@ -2,32 +2,20 @@
 // Created by hspark on 3/21/18.
 //
 
-#ifndef INTRAPROCESSLOCKABLE_IPL_MTX_CDV_H
-#define INTRAPROCESSLOCKABLE_IPL_MTX_CDV_H
+#ifndef INTRAPROCESSLOCKABLE_IPL_MTX_SEM_H
+#define INTRAPROCESSLOCKABLE_IPL_MTX_SEM_H
+
 
 #include <chrono>
-
-#include "boost/thread.hpp"
+#include "boost/interprocess/sync/interprocess_semaphore.hpp"
 
 typedef boost::mutex Mutex;
 typedef boost::condition_variable ConditionVariable;
 typedef boost::chrono::microseconds MicroSeconds;
 
-class IPL_MTX_CDV {
-private:
-    volatile boost::uint32_t lockval; /* 0 == unlocked & available */
-
-    /* TUNING PARAMETERS */
-    MicroSeconds LOCK_ACQ_RETRY_INTERVAL;
-    MicroSeconds WAIT_TIMEOUT;
-    unsigned int LOCK_ACQ_TRIAL_BEFORE_WAIT;
-
-    /* FOR THE USE OF CONDITION VARIABLE */
-    Mutex mtx;
-    ConditionVariable cd;
-
+class IPL_MTX_SEM {
 public:
-    IPL_MTX_CDV() :
+    IPL_MTX_SEM() :
             lockval(0),
             LOCK_ACQ_RETRY_INTERVAL(10),
             WAIT_TIMEOUT(10),
@@ -72,9 +60,8 @@ public:
         }
 
         /* FAILED TO ACQUIRE THE LOCK */
-        boost::unique_lock<Mutex> ul(mtx);
         while (lockval != 0) {
-            cd.wait_for(ul, WAIT_TIMEOUT);
+            sem_wait(&semaphore);
         }
 
         /* Acquired the lock */
@@ -83,13 +70,14 @@ public:
     }
 
     void unlock() {
+        int i = 0;
         boost::unique_lock<Mutex> ul(mtx);
         if (lockval < 1) {
             //TODO: assert or throw a critical error
         }
         lockval--;
         ul.unlock();
-        cd.notify_all();
+        sem_post(&semaphore);
     }
 
     void setLockAcqInterval(unsigned int ms) {
@@ -103,7 +91,18 @@ public:
     void setLockAcqTrial(unsigned int n) {
         this->LOCK_ACQ_TRIAL_BEFORE_WAIT = n;
     }
+
+private:
+    volatile boost::uint32_t lockval; /* 0 == unlocked & available */
+
+    /* TUNING PARAMETERS */
+    MicroSeconds LOCK_ACQ_RETRY_INTERVAL;
+    MicroSeconds WAIT_TIMEOUT;
+    unsigned int LOCK_ACQ_TRIAL_BEFORE_WAIT;
+
+    /* FOR THE USE OF CONDITION VARIABLE */
+    Mutex mtx;
+    sem_t semaphore;
 };
 
-
-#endif //INTRAPROCESSLOCKABLE_IPL_MTX_CDV_H
+#endif //INTRAPROCESSLOCKABLE_IPL_MTX_SEM_H

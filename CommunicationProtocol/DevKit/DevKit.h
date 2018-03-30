@@ -12,6 +12,8 @@
  */
 #include <chrono>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 /**
  * PRINT OUT MACROS
@@ -102,6 +104,20 @@ std::cout << "| " << std::chrono::duration_cast<std::chrono::nanoseconds>(done-s
 std::cout << "| " << elapsed_ticks << " CPU CLOCKS (This machine's CPU clocks / Second = " << CLOCKS_PER_SEC << ")" << std::endl;\
 std::cout << "-----------------------------------------------------------------------" << std::endl;\
 }void foo()
+
+/**
+ * REDIRECT COUT TO A FILE MACRO
+ * Do not forget to reset the cout buffer, you'll get some sweet SIGSEGV otherwise.
+ *
+ * USE: REDIRECT(filename); //code block to execute REDIRECT_RESET();
+ */
+#define REDIRECT(file) \
+    std::ofstream outfile(file);\
+    std::streambuf *coutbuf = std::cout.rdbuf();\
+    std::cout.rdbuf(outfile.rdbuf());
+
+#define REDIRECT_RESET() \
+    std::cout.rdbuf(coutbuf);
 
 
 #endif //MESSAGEPROTOCOL_TIMER_H

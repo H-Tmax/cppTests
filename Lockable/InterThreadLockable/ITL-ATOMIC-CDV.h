@@ -2,40 +2,39 @@
 // Created by hspark on 3/21/18.
 //
 
-#ifndef INTRAPROCESSLOCKABLE_IPL_BOOST_SEM_H
-#define INTRAPROCESSLOCKABLE_IPL_BOOST_SEM_H
-
+#ifndef INTRAPROCESSLOCKABLE_IPL_ATOMIC_CDV_H
+#define INTRAPROCESSLOCKABLE_IPL_ATOMIC_CDV_H
 
 #include <chrono>
-
-#include "boost/interprocess/detail/atomic.hpp"
-#include "boost/thread.hpp"
-#include "boost/atomic.hpp"
 
 typedef boost::mutex Mutex;
 typedef boost::condition_variable ConditionVariable;
 typedef boost::chrono::microseconds MicroSeconds;
 
-class IPL_BST_SEM {
+class IPL_ATM_CDV {
 public:
-    IPL_BST_SEM() :
+    IPL_ATM_CDV() :
             lockval(0),
             LOCK_ACQ_RETRY_INTERVAL(10),
             WAIT_TIMEOUT(10),
             LOCK_ACQ_TRIAL_BEFORE_WAIT(10) {}
 
+
     void lock_busy() {
-        while (boost::interprocess::ipcdetail::atomic_cas32(&lockval, 1, 0) != 0) {
+        //REQUIRES AN ADDITIONAL VARIABLE :(
+        int available = 0;
+        while (!lockval.compare_exchange_strong(available, 1)) {
             boost::this_thread::sleep_for(LOCK_ACQ_RETRY_INTERVAL);
+            //Compare current value with expected, change it to desired if matches.
+            //Returns true if an exchange has been performed, and always writes the previous value back in expected
+            available = 0;
         }
     }
 
     bool lock_try() {
-        if (boost::interprocess::ipcdetail::atomic_cas32(&lockval, 1, 0) == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        //REQUIRES AN ADDITIONAL VARIABLE :(
+        int available = 0;
+        return lockval.compare_exchange_strong(available, 1);
     }
 
     void lock_wait() {
@@ -44,27 +43,27 @@ public:
                 boost::this_thread::sleep_for(LOCK_ACQ_RETRY_INTERVAL);
                 continue;
             } else {
-                /* LOCK ACQUIRED*/
-                boost::interprocess::ipcdetail::atomic_inc32(&lockval);
+                /* LOCK ACQUIRED */
+                lockval++;
                 return;
             }
         }
         /* FAILED TO ACQUIRE THE LOCK */
         boost::unique_lock<Mutex> ul(mtx);
-        while (boost::interprocess::ipcdetail::atomic_read32(&lockval) != 0) {
+        while (lockval.load() != 0) { /* In case awakened, but someone took it before me */
             cd.wait_for(ul, WAIT_TIMEOUT);
         }
 
-        /* Acquired the Lock */
-        boost::interprocess::ipcdetail::atomic_inc32(&lockval);
+        /* LOCK ACQUIRED */
+        lockval++;
         return;
     }
 
     void unlock() {
-        if (boost::interprocess::ipcdetail::atomic_read32(&lockval) < 1) {
+        if (lockval.load() < 1) {
             //TODO: assert or throw a critical error
         }
-        boost::interprocess::ipcdetail::atomic_cas32(&lockval, 0, lockval);
+        lockval.exchange(0);
         cd.notify_all();
     }
 
@@ -81,8 +80,6 @@ public:
     }
 
 private:
-    volatile boost::uint32_t lockval; /* 0 == unlocked & available */
-
     /* TUNING PARAMETERS */
     MicroSeconds LOCK_ACQ_RETRY_INTERVAL;
     MicroSeconds WAIT_TIMEOUT;
@@ -91,6 +88,10 @@ private:
     /* FOR THE USE OF CONDITION VARIABLE */
     Mutex mtx;
     ConditionVariable cd;
+
+    /* FOR ATOMIC LIBRARY */
+    boost::atomic_int32_t lockval;
 };
 
-#endif //INTRAPROCESSLOCKABLE_IPL_BOOST_SEM_H
+
+#endif //INTRAPROCESSLOCKABLE_IPL_ATOMIC_CDV_H
