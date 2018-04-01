@@ -38,11 +38,13 @@ public:
 class IPL_BST_SEM_TST {
 public:
     boost::mutex mtx;
+
     IPL_BST_SEM_TST() :
             lockval(0),
             LOCK_ACQ_RETRY_INTERVAL(10),
             WAIT_TIMEOUT(10),
-            LOCK_ACQ_TRIAL_BEFORE_WAIT(10) {
+            LOCK_ACQ_TRIAL_BEFORE_WAIT(10),
+            retry_flag(false) {
         const void *address = static_cast<const void *>(this);
         std::stringstream ss;
         ss << address;
@@ -59,6 +61,12 @@ public:
 
     void lock_wait(ThreadInfo *_cur_thr) {
         cur_thr = _cur_thr;
+        boost::thread::id thr_id = boost::this_thread::get_id();
+        std::cout << "\n" << "_cur_thr: " << _cur_thr << std::endl;
+        std::cout << "cur_thr: " << cur_thr << std::endl;
+        cur_thr->turnstile.lock_addr = key;
+        cur_thr->turnstile.next = nullptr;
+        cur_thr->turnstile.semaphore = &(cur_thr->semaphore);
 
         for (int i = 0; i < LOCK_ACQ_TRIAL_BEFORE_WAIT; i++) {
             if (lock_try() != true) {
@@ -72,30 +80,29 @@ public:
         }
         /* FAILED TO ACQUIRE THE LOCK */
         while (boost::interprocess::ipcdetail::atomic_read32(&lockval) != 0) {
-
-
+            if (retry_flag) {
+                sem_wait(&cur_thr->semaphore);
+            }
             mtx.lock();
             if (turnstiles.find(key) == turnstiles.end()) {
-                cur_thr->turnstile.lock_addr = key;
-                cur_thr->turnstile.next = nullptr;
-                cur_thr->turnstile.semaphore = &(cur_thr->semaphore);
                 turnstiles[key] = &(cur_thr->turnstile);
+                std::cout << "\n" << thr_id << " is adding " << &(cur_thr->turnstile) << " in the waitlist" << std::endl;
             } else {
-                cur_thr->turnstile.lock_addr = key;
-                cur_thr->turnstile.next = nullptr;
-                cur_thr->turnstile.semaphore = &(cur_thr->semaphore);
-
+                std::cout << "ACQ - Currently in the waitlist: " << std::endl;
                 Turnstile *prev = turnstiles[key];
+                std::cout << prev << ", ";
                 Turnstile *for_traverse = turnstiles[key]->next;
                 while (for_traverse != nullptr) {
+                    std::cout << for_traverse << ", ";
                     prev = for_traverse;
                     for_traverse = for_traverse->next;
                 }
+                std::cout << "\n" << thr_id << " is adding " << &(cur_thr->turnstile) << " in the waitlist" << std::endl;
                 prev->next = &(cur_thr->turnstile);
-
             }
             mtx.unlock();
             sem_wait(&cur_thr->semaphore);
+            retry_flag = true;
         }
 
         /* Acquired the Lock */
@@ -107,20 +114,28 @@ public:
         if (boost::interprocess::ipcdetail::atomic_read32(&lockval) < 1) {
             //TODO: assert or throw a critical error
         }
-        boost::interprocess::ipcdetail::atomic_cas32(&lockval, 0, lockval);
 
+        boost::thread::id thr_id = boost::this_thread::get_id();
+        std::cout << "\n" << thr_id << " is releasing the lock" << std::endl;
         mtx.lock();
         if (turnstiles.size() > 0) {
+            std::cout << "REL - Currently in the waitlist: " << std::endl;
             Turnstile *prev = turnstiles[key];
+            std::cout << prev << ", ";
             Turnstile *for_traverse = turnstiles[key]->next;
             while (for_traverse != nullptr) {
+                std::cout << for_traverse << ", ";
                 sem_post(prev->semaphore);
                 prev = for_traverse;
                 for_traverse = for_traverse->next;
             }
             sem_post(prev->semaphore);
         }
+        std::cout << std::endl;
+        turnstiles.erase(key);
         mtx.unlock();
+        boost::interprocess::ipcdetail::atomic_cas32(&lockval, 0, lockval);
+
     }
 
     ThreadInfo *cur_thr;
@@ -133,6 +148,7 @@ private:
     MicroSeconds LOCK_ACQ_RETRY_INTERVAL;
     MicroSeconds WAIT_TIMEOUT;
     unsigned int LOCK_ACQ_TRIAL_BEFORE_WAIT;
+    bool retry_flag;
 };
 
 

@@ -350,20 +350,21 @@ TEST(LOCK, WaitLockTest_ATM_SEM) {
 }
 
 IPL_BST_SEM_TST lock_atm_sem_tst;
-void job_with_wait_tst(int n, int *result, ThreadInfo* ti) {
+
+void job_with_wait_tst(int n, int *result, ThreadInfo *ti) {
+
     lock_atm_sem_tst.lock_wait(ti);
     for (int i = 0; i < n; ++i) {
         (*result)++;
     }
-    std::cout << turnstiles.size() << std::endl;
     lock_atm_sem_tst.unlock();
 }
 
 TEST(LOCK, TurnsitleTest) {
     int trial = 1000000;
-    int thread_cnt = 3;
+    int thread_cnt = 10;
     int result = 0;
-
+    std::cout << "\n";
     boost::thread_group thread_group;
     for (int i = 0; i < thread_cnt; i++) {
         ThreadInfo *ti = new ThreadInfo();
@@ -378,7 +379,7 @@ TEST(LOCK, TurnsitleTest) {
 
 
 //class
-TEST(LOCK, InterThreadLockableTest){
+TEST(LOCK, InterThreadLockableTest) {
 
 }
 
